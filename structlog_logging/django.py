@@ -1,5 +1,6 @@
-from .config import getLogger
 import time
+
+import structlog
 
 
 class StructLogAccessLoggingMiddleware:
@@ -7,7 +8,7 @@ class StructLogAccessLoggingMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.logger = getLogger('access')
+        self.logger = structlog.getLogger('mh_structlog.django.access')
 
     def __call__(self, request):
         # Code to be executed for each request before
