@@ -43,7 +43,9 @@ jobs:
         build
         --user
     - name: Build a binary wheel and a source tarball
-      run: python3 -m build
+      run: |
+        sed -i "s@__version__@$GITHUB_REF_NAME@g" pyproject.toml
+        python3 -m build
     - name: Store the distribution packages
       uses: actions/upload-artifact@v3
       with:
