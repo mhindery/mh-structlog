@@ -6,13 +6,12 @@ import structlog
 class StructLogAccessLoggingMiddleware:
     """Perform access logging using the structlog logger."""
 
-    def __init__(self, get_response):
+    def __init__(self, get_response):  # noqa: D107
         self.get_response = get_response
-        self.logger = structlog.getLogger('mh_structlog.django.access')
+        self.logger = structlog.getLogger("mh_structlog.django.access")
 
     def __call__(self, request):
-        # Code to be executed for each request before
-        # the view (and later middleware) are called.
+        """Create an access log of the request/response."""
         start = time.time()
         response = self.get_response(request)
         end = time.time()
@@ -22,21 +21,21 @@ class StructLogAccessLoggingMiddleware:
         if response.status_code >= 500:
             self.logger.error(
                 request.get_full_path(),
-                latency=f'{int(latency_ms)}ms',
+                latency=f"{int(latency_ms)}ms",
                 method=request.method,
                 status=response.status_code,
             )
         elif response.status_code >= 400:
             self.logger.warning(
                 request.get_full_path(),
-                latency=f'{int(latency_ms)}ms',
+                latency=f"{int(latency_ms)}ms",
                 method=request.method,
                 status=response.status_code,
             )
         else:
             self.logger.info(
                 request.get_full_path(),
-                latency=f'{int(latency_ms)}ms',
+                latency=f"{int(latency_ms)}ms",
                 method=request.method,
                 status=response.status_code,
             )

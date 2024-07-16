@@ -1,2 +1,4 @@
 structlog
 orjson
+ruff
+pytest
