@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: structlog_logging
+Version: 0.0.1
+Summary: Some Structlog configuration and wrappers to easily use structlog.
+Author-email: Mathieu Hinderyckx <mathieu.hinderyckx@gmail.com>
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: structlog
+Requires-Dist: orjson

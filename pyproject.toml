@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "structlog_logging"
+authors = [
+    {name = "Mathieu Hinderyckx", email = "mathieu.hinderyckx@gmail.com"}
+]
+description = "Some Structlog configuration and wrappers to easily use structlog."
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "structlog",
+    "orjson",
+]
