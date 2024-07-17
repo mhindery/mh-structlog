@@ -45,10 +45,10 @@ def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -
 
 
 def setup(
-    log_format: t.Literal["console", "aws_json"] | None = None,
-    logging_configs: list[dict] | None = None,
+    log_format: t.Optional[t.Literal["console", "aws_json"]] = None,
+    logging_configs: t.Optional[t.List[dict]] = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
-    global_filter_level: int | None = None,
+    global_filter_level: t.Optional[int] = None,
 ) -> None:
     """Configure logging."""
     if structlog.is_configured():
@@ -69,15 +69,15 @@ def setup(
         selected_formatter = "structlog_colored_formatter"
     elif log_format == "aws_json":
         shared_processors.append(
-            structlog.processors.dict_tracebacks,
+            structlog.processors.dict_tracebacks
         )  # add 'exception' field with a dict of the exception
         selected_formatter = "structlog_json_formatter"
 
     if include_source_location:
         shared_processors.append(
             structlog.processors.CallsiteParameterAdder(
-                parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME},
-            ),
+                parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME}
+            )
         )
 
     wrapper_class = structlog.stdlib.BoundLogger
@@ -116,7 +116,7 @@ def setup(
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True,
+                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
@@ -133,7 +133,7 @@ def setup(
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True,
+                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
@@ -157,14 +157,14 @@ def setup(
                 "class": "logging.StreamHandler",
                 "stream": "ext://sys.stdout",
                 "formatter": selected_formatter,
-            },
+            }
         },
         "loggers": {
             "": {
                 "handlers": ["structlog_handler"],
                 "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
                 "propagate": True,
-            },
+            }
         },
     }
 
@@ -174,7 +174,7 @@ def setup(
             for k, v in lc.get("loggers", {}).items():
                 if k in ["", "root"]:
                     raise StructlogLoggingConfigExceptionError(
-                        "It is not allowed to specify a custom root logger, since structlog configures that one.",
+                        "It is not allowed to specify a custom root logger, since structlog configures that one."
                     )
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
@@ -195,7 +195,7 @@ def setup(
             for k, v in lc.get("formatters", {}).items():
                 if k in ["structlog_plain_formatter", "structlog_colored_formatter", "structlog_json_formatter"]:
                     raise StructlogLoggingConfigExceptionError(
-                        f"It is not allowed to specify a formatter with the name {k}, since structlog configures that one.",
+                        f"It is not allowed to specify a formatter with the name {k}, since structlog configures that one."
                     )
                 stdlib_logging_config["formatters"][k] = v
             for k, v in lc.get("filters", {}).items():
