@@ -168,7 +168,12 @@ def setup(
                 "handlers": ["mh_structlog_stdout"],
                 "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
                 "propagate": True,
-            }
+            },
+            "stdout": {
+                "handlers": ["mh_structlog_stdout"],
+                "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
+                "propagate": False,
+            },
         },
     }
 
@@ -193,6 +198,12 @@ def setup(
             'filename': log_file_name,
         }
         stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
+        # Add a named logger to log to the file only (the root logger also logs to stdout)
+        stdlib_logging_config['loggers']['file'] = {
+            "handlers": ["mh_structlog_file"],
+            "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
+            "propagate": False,
+        }
 
     # Merge in additional logging configs that were passed in by the caller.
     if logging_configs:
