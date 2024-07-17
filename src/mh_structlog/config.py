@@ -45,12 +45,15 @@ def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -
 
 
 def setup(
-    log_format: t.Optional[t.Literal["console", "aws_json"]] = None,
+    log_format: t.Optional[t.Literal["console", "json"]] = None,
     logging_configs: t.Optional[t.List[dict]] = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
     global_filter_level: t.Optional[int] = None,
+    log_file_name: t.Optional[str] = None,
+    log_file_format: t.Optional[t.Literal["console", "json"]] = None,
 ) -> None:
-    """Configure logging."""
+    """This method configures structlog and the standard library logging module."""
+
     if structlog.is_configured():
         return
 
@@ -60,18 +63,19 @@ def setup(
         structlog.processors.TimeStamper(fmt="iso", utc=True),  # add a timestamp
     ]
 
+    # Configure stdout formatter
     if log_format is None:
-        log_format = "console" if sys.stdout.isatty() else "aws_json"
-    if log_format not in ["console", "aws_json"]:
+        log_format = "console" if sys.stdout.isatty() else "json"
+    if log_format not in ["console", "json"]:
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
     if log_format == "console":
-        selected_formatter = "structlog_colored_formatter"
-    elif log_format == "aws_json":
+        selected_formatter = "mh_structlog_colored"
+    elif log_format == "json":
         shared_processors.append(
             structlog.processors.dict_tracebacks
         )  # add 'exception' field with a dict of the exception
-        selected_formatter = "structlog_json_formatter"
+        selected_formatter = "mh_structlog_json"
 
     if include_source_location:
         shared_processors.append(
@@ -104,7 +108,7 @@ def setup(
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
-            "structlog_plain_formatter": {
+            "mh_structlog_plain": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
                     _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
@@ -122,7 +126,7 @@ def setup(
                 ],
                 "foreign_pre_chain": shared_processors,
             },
-            "structlog_colored_formatter": {
+            "mh_structlog_colored": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
                     _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
@@ -139,7 +143,7 @@ def setup(
                 ],
                 "foreign_pre_chain": shared_processors,
             },
-            "structlog_json_formatter": {
+            "mh_structlog_json": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
                     _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
@@ -152,7 +156,7 @@ def setup(
         },
         "filters": {},
         "handlers": {
-            "structlog_handler": {
+            "mh_structlog_stdout": {
                 "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
                 "class": "logging.StreamHandler",
                 "stream": "ext://sys.stdout",
@@ -161,12 +165,34 @@ def setup(
         },
         "loggers": {
             "": {
-                "handlers": ["structlog_handler"],
+                "handlers": ["mh_structlog_stdout"],
                 "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
                 "propagate": True,
             }
         },
     }
+
+    # Add a handler to output to a file
+    if log_file_name:
+        # Select formatter
+        if log_file_format is None:
+            log_file_format = "console" if sys.stdout.isatty() else "json"
+        if log_file_format not in ["console", "json"]:
+            raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
+
+        if log_file_format == "console":
+            selected_file_formatter = "mh_structlog_colored"
+        elif log_file_format == "json":
+            selected_file_formatter = "mh_structlog_json"
+
+        # Add a handler with file output to the root logger
+        stdlib_logging_config['handlers']['mh_structlog_file'] = {
+            "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
+            "class": "logging.FileHandler",
+            "formatter": selected_file_formatter,
+            'filename': log_file_name,
+        }
+        stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
 
     # Merge in additional logging configs that were passed in by the caller.
     if logging_configs:
@@ -178,7 +204,9 @@ def setup(
                     )
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
-                    v["handlers"] = ["structlog_handler"]
+                    v["handlers"] = ["mh_structlog_stdout"]
+                    if log_file_name:
+                        v['handlers'].append('mh_structlog_file')
                 if "level" not in v:
                     v["level"] = "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level)
                     v["propagate"] = False
@@ -187,13 +215,13 @@ def setup(
                 # Set the formatter to ours if none was specified explicitly
                 if "formatter" not in v:
                     # If we are logging to a file and we do not do json format, use the non-colored formatter
-                    if "file" in v["class"].lower() and selected_formatter == "structlog_colored_formatter":
-                        v["formatter"] = "structlog_plain_formatter"
+                    if "file" in v["class"].lower() and selected_formatter == "mh_structlog_colored":
+                        v["formatter"] = "mh_structlog_plain"
                     else:
                         v["formatter"] = selected_formatter
                 stdlib_logging_config["handlers"][k] = v
             for k, v in lc.get("formatters", {}).items():
-                if k in ["structlog_plain_formatter", "structlog_colored_formatter", "structlog_json_formatter"]:
+                if k in ["mh_structlog_plain", "mh_structlog_colored", "mh_structlog_json"]:
                     raise StructlogLoggingConfigExceptionError(
                         f"It is not allowed to specify a formatter with the name {k}, since structlog configures that one."
                     )
@@ -204,49 +232,18 @@ def setup(
     logging.config.dictConfig(stdlib_logging_config)
 
 
-def get_named_logger_level_filter(logger_name: str, level: int) -> dict:
-    """Return a dict containing a configuration for a named logger with a certain level filter."""
-    return {"loggers": {logger_name: {"level": level, "propagate": False}}}
+def filter_named_logger(logger_name: str, level: int) -> dict:
+    """Return a dict containing a configuration for a named logger with a certain level filter.
 
-
-def get_file_logger_config(logger_name: str = "", file_name: str = "out.log") -> dict:
-    """Return a dict containing a configuration for logging to a file, additionally to the stdout output."""
+    Use this to silence a named logger by passing this config to the setup() method.
+    """
+    # fmt: off
     return {
-        "handlers": {f"file_handler_{logger_name}": {"class": "logging.FileHandler", "filename": file_name}},
-        "loggers": {logger_name: {"handlers": [f"file_handler_{logger_name}"]}},
+        "loggers": {
+            logger_name: {
+                "level": level,
+                "propagate": False,
+            },
+        }
     }
-
-
-if __name__ == "__main__":
-    setup(
-        # log_format="aws_json",
-        logging_configs=[
-            get_named_logger_level_filter(logger_name="named", level=logging.DEBUG),
-            get_file_logger_config(logger_name="file_logger", file_name="file.log"),
-            get_file_logger_config(logger_name="file_logger_2", file_name="out.log"),
-        ],
-        global_filter_level=logging.NOTSET,
-    )
-
-    log = structlog.get_logger("named")
-    log.debug("DEBUG MESSAGE")
-    log.info("An info message", key="value", mylist=[1, 2, 3])
-    log.warning("Another %s, this time %s", "one", "warning", hey="ho", extra={"lala": "lolo"})
-    log.error("Testing", extra={"lala": "lolo"}, stack_info=True)
-    std_log = logging.getLogger("named")
-    std_log.debug("DEBUG MESSAGE")
-    std_log.info("An info message", extra={"key": "value", "mylist": [1, 2, 3]})
-    std_log.warning("Another %s, this time %s", "one", "warning", extra={"hey": "ho", "lala": "lolo"})
-    std_log.error("Testing", extra={"lala": "lolo"}, stack_info=True)
-    # try:
-    #     raise Exception('An exception')
-    # except Exception as e:
-    #     log.exception('Something went wrong')
-    # raise Exception('Another one')
-
-    # Logging to a file
-    file_log = structlog.get_logger("file_logger")
-    file_log.debug("DEBUG MESSAGE")
-    file_log.info("An info message", key="value", mylist=[1, 2, 3])
-    file_log.warning("Another %s, this time %s", "one", "warning", hey="ho", extra={"lala": "lolo"})
-    file_log.error("Testing", extra={"lala": "lolo"}, stack_info=True)
+    # fmt: on
