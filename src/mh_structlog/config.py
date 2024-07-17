@@ -21,15 +21,12 @@ def _add_flattened_extra(_, __, event_dict: dict) -> dict:
     if event_dict.get("_from_structlog", False):
         # Coming from structlog logging call
         extra = event_dict.pop("extra", {})
-        for k, v in extra.items():
-            event_dict[k] = v
+        event_dict.update(extra)
     else:
         # Coming from standard logging call
         record = event_dict.get("_record")
         if record is not None:
-            for k, v in record.__dict__.items():
-                if k not in _LOG_RECORD_KEYS:
-                    event_dict[k] = v
+            event_dict.update({k: v for k, v in record.__dict__.items() if k not in _LOG_RECORD_KEYS})
 
     return event_dict
 
