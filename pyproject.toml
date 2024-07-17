@@ -27,7 +27,7 @@ extend-include = ["*.ipynb"]
 indent-width = 4
 preview = false
 required-version = ">=0.4.5"
-target-version = "py312"
+target-version = "py39"
 unsafe-fixes = true
 
 # Overwritten in CI/CD
