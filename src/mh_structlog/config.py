@@ -3,6 +3,7 @@ import logging.config
 import sys
 import typing as t
 import structlog
+from pathlib import Path
 import orjson
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
@@ -49,7 +50,7 @@ def setup(
     logging_configs: t.Optional[t.List[dict]] = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
     global_filter_level: t.Optional[int] = None,
-    log_file_name: t.Optional[str] = None,
+    log_file: t.Optional[t.Union[str, Path]] = None,
     log_file_format: t.Optional[t.Literal["console", "json"]] = None,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
@@ -178,7 +179,7 @@ def setup(
     }
 
     # Add a handler to output to a file
-    if log_file_name:
+    if log_file:
         # Select formatter
         if log_file_format is None:
             log_file_format = "console" if sys.stdout.isatty() else "json"
@@ -186,7 +187,7 @@ def setup(
             raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
         if log_file_format == "console":
-            selected_file_formatter = "mh_structlog_colored"
+            selected_file_formatter = "mh_structlog_plain"
         elif log_file_format == "json":
             selected_file_formatter = "mh_structlog_json"
 
@@ -195,7 +196,7 @@ def setup(
             "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
             "class": "logging.FileHandler",
             "formatter": selected_file_formatter,
-            'filename': log_file_name,
+            'filename': log_file,
         }
         stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
         # Add a named logger to log to the file only (the root logger also logs to stdout)
@@ -216,7 +217,7 @@ def setup(
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
                     v["handlers"] = ["mh_structlog_stdout"]
-                    if log_file_name:
+                    if log_file:
                         v['handlers'].append('mh_structlog_file')
                 if "level" not in v:
                     v["level"] = "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level)
