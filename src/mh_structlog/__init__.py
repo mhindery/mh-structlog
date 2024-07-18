@@ -3,7 +3,7 @@ from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, WARN, WARNING
 
 import structlog
 
-from .config import get_file_logger_config, get_named_logger_level_filter, setup
+from .config import filter_named_logger, setup
 from .django import StructLogAccessLoggingMiddleware
 
 
@@ -21,8 +21,7 @@ __all__ = [
     "setup",
     "get_logger",
     "getLogger",
-    "get_named_logger_level_filter",
-    "get_file_logger_config",
+    "filter_named_logger",
     "INFO",
     "DEBUG",
     "ERROR",
