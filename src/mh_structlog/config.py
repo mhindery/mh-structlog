@@ -56,6 +56,9 @@ def setup(
     """This method configures structlog and the standard library logging module."""
 
     if structlog.is_configured():
+        from logging import getLogger
+
+        getLogger('mh_structlog').warning('logging was already configured, so I return and do nothing.')
         return
 
     shared_processors = [
@@ -191,15 +194,18 @@ def setup(
         elif log_file_format == "json":
             selected_file_formatter = "mh_structlog_json"
 
+        log_file = Path(log_file)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+
         # Add a handler with file output to the root logger
         stdlib_logging_config['handlers']['mh_structlog_file'] = {
             "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
             "class": "logging.FileHandler",
             "formatter": selected_file_formatter,
-            'filename': log_file,
+            'filename': log_file.name,
         }
         stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
-        # Add a named logger to log to the file only (the root logger also logs to stdout)
+        # Add a named logger to log to the file only (the root logger logs to both stdout and file)
         stdlib_logging_config['loggers']['file'] = {
             "handlers": ["mh_structlog_file"],
             "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
