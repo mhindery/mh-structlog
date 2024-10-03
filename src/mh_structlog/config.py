@@ -52,6 +52,7 @@ def setup(
     global_filter_level: t.Optional[int] = None,
     log_file: t.Optional[t.Union[str, Path]] = None,
     log_file_format: t.Optional[t.Literal["console", "json"]] = None,
+    testing_mode: bool = False,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
 
@@ -104,7 +105,7 @@ def setup(
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=wrapper_class,
-        cache_logger_on_first_use=True,
+        cache_logger_on_first_use=not testing_mode,  # https://www.structlog.org/en/stable/testing.html#testing
     )
 
     # Std lib logging configuration.
