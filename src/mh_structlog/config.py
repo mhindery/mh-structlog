@@ -56,7 +56,9 @@ def setup(
 ) -> None:
     """This method configures structlog and the standard library logging module."""
 
-    if structlog.is_configured():
+    # Unless we are in testing mode, don't configure logging if it was already configured.
+    # During testing, we need te flexibility to configure logging multiple times.
+    if structlog.is_configured() and not testing_mode:
         from logging import getLogger
 
         getLogger('mh_structlog').warning('logging was already configured, so I return and do nothing.')
