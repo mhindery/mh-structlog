@@ -52,7 +52,7 @@ def setup(
     global_filter_level: t.Optional[int] = None,
     log_file: t.Optional[t.Union[str, Path]] = None,
     log_file_format: t.Optional[t.Literal["console", "json"]] = None,
-    testing_mode: bool = False,
+    testing_mode: bool = False,  # noqa: FBT001, FBT002
 ) -> None:
     """This method configures structlog and the standard library logging module."""
 
