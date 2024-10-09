@@ -3,7 +3,12 @@ import inspect
 
 def determine_name_for_logger():
     """Return a name for a logger depending on the stackframe."""
-    frame = inspect.stack()[-1]
+    frames = inspect.stack()
+
+    for f in frames:
+        frame = f
+        if 'mh_structlog' not in f[1]:
+            break
 
     # Make a name ourselves
     name: str = frame[1].lstrip('/').rstrip('.py').replace('/', '.')
