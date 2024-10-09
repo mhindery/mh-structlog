@@ -61,6 +61,7 @@ def setup(
     log_file: t.Optional[t.Union[str, Path]] = None,
     log_file_format: t.Optional[t.Literal["console", "json"]] = None,
     testing_mode: bool = False,  # noqa: FBT001, FBT002
+    max_frames: int = 100,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
 
@@ -135,7 +136,7 @@ def setup(
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True
+                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
@@ -152,7 +153,7 @@ def setup(
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=10, show_locals=True, locals_hide_dunder=True
+                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
