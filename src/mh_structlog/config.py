@@ -41,6 +41,12 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
     return event_dict
 
 
+def ensure_msg_string(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
+    if not isinstance(event_dict['message'], str):
+        event_dict['message'] = str(event_dict['message'])
+    return event_dict
+
+
 def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
     return orjson.dumps(event_dict).decode()
 
@@ -156,6 +162,7 @@ def setup(
                     _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
+                    ensure_msg_string,
                     _render_orjson,
                 ],
                 "foreign_pre_chain": shared_processors,
