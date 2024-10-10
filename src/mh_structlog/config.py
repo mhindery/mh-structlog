@@ -5,6 +5,7 @@ import typing as t
 import structlog
 from pathlib import Path
 import orjson
+from functools import partial
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
 
@@ -41,16 +42,24 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
     return event_dict
 
 
-def _ensure_msg_string(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
-    """Ensure that the message is a string, so it is json-serializable."""
-    if not isinstance(event_dict['message'], str):
-        event_dict['message'] = str(event_dict['message'])
+def cap_exception_frames(max_frames: int, logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
+    """Limit the number of frames in the exception traceback.
+
+    With the builtin ConsoleRenderer, this can be given as argument (max_frames), but not when dict_tracebacks is used.
+    """
+    if 'exception' in event_dict and 'frames' in event_dict["exception"]:
+        event_dict['exception']['frames'] = event_dict['exception']['frames'][-max_frames:]
     return event_dict
+
+
+def default_serializer(obj):
+    """Serializer for not-orjson-natively serializable objects."""
+    return repr(obj)
 
 
 def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
     """Render the event_dict as a json string using orjson."""
-    return orjson.dumps(event_dict).decode()
+    return orjson.dumps(event_dict, default=default_serializer).decode()
 
 
 def setup(
@@ -79,25 +88,24 @@ def setup(
         structlog.processors.TimeStamper(fmt="iso", utc=True),  # add a timestamp
     ]
 
+    if max_frames <= 0:
+        raise StructlogLoggingConfigExceptionError("max_frames should be a positive integer.")
+
     # Configure stdout formatter
     if log_format is None:
         log_format = "console" if sys.stdout.isatty() else "json"
-    if log_format not in ["console", "json"]:
+    if log_format not in {"console", "json"}:
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
     elif log_format == "json":
-        shared_processors.append(
-            structlog.processors.dict_tracebacks
-        )  # add 'exception' field with a dict of the exception
+        shared_processors.append(structlog.processors.dict_tracebacks, partial(cap_exception_frames, max_frames=2 * max_frames))
         selected_formatter = "mh_structlog_json"
 
     if include_source_location:
         shared_processors.append(
-            structlog.processors.CallsiteParameterAdder(
-                parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME}
-            )
+            structlog.processors.CallsiteParameterAdder(parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME})
         )
 
     wrapper_class = structlog.stdlib.BoundLogger
@@ -111,7 +119,9 @@ def setup(
             structlog.stdlib.filter_by_level,  # filter based on the stdlib logging config
             structlog.contextvars.merge_contextvars,  # add variables and bound data from global context
             structlog.stdlib.PositionalArgumentsFormatter(),  # Allow string formatting with positional arguments in log calls
-            structlog.processors.StackInfoRenderer(),  # when you create a log and specify stack_info=True, add a stacktrace to the log
+            structlog.processors.StackInfoRenderer(
+                additional_ignores=['mh_structlog']
+            ),  # when you create a log and specify stack_info=True, add a stacktrace to the log
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
@@ -135,9 +145,7 @@ def setup(
                         pad_event=80,
                         sort_keys=True,
                         event_key="message",
-                        exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
-                        ),
+                        exception_formatter=RichTracebackFormatter(width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True),
                     ),
                 ],
                 "foreign_pre_chain": shared_processors,
@@ -152,9 +160,7 @@ def setup(
                         pad_event=80,
                         sort_keys=True,
                         event_key="message",
-                        exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
-                        ),
+                        exception_formatter=RichTracebackFormatter(width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True),
                     ),
                 ],
                 "foreign_pre_chain": shared_processors,
@@ -165,7 +171,6 @@ def setup(
                     _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
-                    _ensure_msg_string,
                     _render_orjson,
                 ],
                 "foreign_pre_chain": shared_processors,
@@ -230,9 +235,7 @@ def setup(
         for lc in logging_configs:
             for k, v in lc.get("loggers", {}).items():
                 if k in ["", "root"]:
-                    raise StructlogLoggingConfigExceptionError(
-                        "It is not allowed to specify a custom root logger, since structlog configures that one."
-                    )
+                    raise StructlogLoggingConfigExceptionError("It is not allowed to specify a custom root logger, since structlog configures that one.")
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
                     v["handlers"] = ["mh_structlog_stdout"]
