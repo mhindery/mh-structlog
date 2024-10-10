@@ -1,3 +1,4 @@
+# ruff: noqa: UP006,UP007
 import logging  # noqa: I001
 import logging.config
 import sys
@@ -18,7 +19,7 @@ class StructlogLoggingConfigExceptionError(Exception):
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
 
 
-def _add_flattened_extra(_, __, event_dict: dict) -> dict:
+def _add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
     """Include the content of 'extra' in the output log, flattened the attributes."""
     if event_dict.get("_from_structlog", False):
         # Coming from structlog logging call
@@ -62,7 +63,7 @@ def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -
     return orjson.dumps(event_dict, default=default_serializer).decode()
 
 
-def setup(
+def setup(  # noqa: PLR0912, PLR0915
     log_format: t.Optional[t.Literal["console", "json"]] = None,
     logging_configs: t.Optional[t.List[dict]] = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
@@ -77,7 +78,7 @@ def setup(
     # Unless we are in testing mode, don't configure logging if it was already configured.
     # During testing, we need te flexibility to configure logging multiple times.
     if structlog.is_configured() and not testing_mode:
-        from logging import getLogger
+        from logging import getLogger  # noqa: PLC0415
 
         getLogger('mh_structlog').warning('logging was already configured, so I return and do nothing.')
         return
@@ -204,7 +205,7 @@ def setup(
         # Select formatter
         if log_file_format is None:
             log_file_format = "console" if sys.stdout.isatty() else "json"
-        if log_file_format not in ["console", "json"]:
+        if log_file_format not in {"console", "json"}:
             raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
         if log_file_format == "console":
@@ -234,7 +235,7 @@ def setup(
     if logging_configs:
         for lc in logging_configs:
             for k, v in lc.get("loggers", {}).items():
-                if k in ["", "root"]:
+                if k in {"", "root"}:
                     raise StructlogLoggingConfigExceptionError("It is not allowed to specify a custom root logger, since structlog configures that one.")
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
@@ -255,7 +256,7 @@ def setup(
                         v["formatter"] = selected_formatter
                 stdlib_logging_config["handlers"][k] = v
             for k, v in lc.get("formatters", {}).items():
-                if k in ["mh_structlog_plain", "mh_structlog_colored", "mh_structlog_json"]:
+                if k in {"mh_structlog_plain", "mh_structlog_colored", "mh_structlog_json"}:
                     raise StructlogLoggingConfigExceptionError(
                         f"It is not allowed to specify a formatter with the name {k}, since structlog configures that one."
                     )
