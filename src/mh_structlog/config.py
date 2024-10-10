@@ -6,7 +6,7 @@ import typing as t
 import structlog
 from pathlib import Path
 import orjson
-from functools import partial
+from structlog.typing import EventDict
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
 
@@ -43,14 +43,20 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
     return event_dict
 
 
-def cap_exception_frames(max_frames: int, logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
+class CapExceptionFrames:
     """Limit the number of frames in the exception traceback.
 
     With the builtin ConsoleRenderer, this can be given as argument (max_frames), but not when dict_tracebacks is used.
     """
-    if 'exception' in event_dict and 'frames' in event_dict["exception"]:
-        event_dict['exception']['frames'] = event_dict['exception']['frames'][-max_frames:]
-    return event_dict
+
+    def __init__(self, max_frames: int):
+        """Set the max number of frames to keep in exception tracebacks."""
+        self.max_frames = max_frames
+
+    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102
+        if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
+            event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
+        return event_dict
 
 
 def default_serializer(obj):
@@ -101,7 +107,7 @@ def setup(  # noqa: PLR0912, PLR0915
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
     elif log_format == "json":
-        shared_processors.extend([structlog.processors.dict_tracebacks, partial(cap_exception_frames, max_frames=2 * max_frames)])
+        shared_processors.extend([structlog.processors.dict_tracebacks, CapExceptionFrames(max_frames=2 * max_frames)])
         selected_formatter = "mh_structlog_json"
 
     if include_source_location:
