@@ -101,7 +101,7 @@ def setup(  # noqa: PLR0912, PLR0915
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
     elif log_format == "json":
-        shared_processors.append(structlog.processors.dict_tracebacks, partial(cap_exception_frames, max_frames=2 * max_frames))
+        shared_processors.extend([structlog.processors.dict_tracebacks, partial(cap_exception_frames, max_frames=2 * max_frames)])
         selected_formatter = "mh_structlog_json"
 
     if include_source_location:
