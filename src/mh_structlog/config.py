@@ -53,7 +53,7 @@ class CapExceptionFrames:
         """Set the max number of frames to keep in exception tracebacks."""
         self.max_frames = max_frames
 
-    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: ARG002, D102
+    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: ARG002, D102, ANN101
         if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
             event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
         return event_dict
