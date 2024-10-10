@@ -19,6 +19,7 @@ format:
 compile:
 	# Compile requirements from .in to .txt files
 	uv pip compile requirements.in -o requirements.txt --generate-hashes -q --emit-index-url --prerelease=allow
+	uv pip compile requirements-dev.in -o requirements-dev.txt --generate-hashes -q --emit-index-url --prerelease=allow
 
 install:
 	# Install python environment, downloading python if necessary

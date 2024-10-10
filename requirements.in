@@ -2,7 +2,3 @@ structlog
 orjson
 ruff
 pytest
-
-# Useful for development
-ipython
-ipdb
