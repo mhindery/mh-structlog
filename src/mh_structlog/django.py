@@ -16,31 +16,13 @@ class StructLogAccessLoggingMiddleware:
         response = self.get_response(request)
         end = time.time()
 
-        latency_ms = 1000 * (end - start)
+        latency_ms = int(1000 * (end - start))
 
-        if response.status_code >= 500:
-            self.logger.error(
-                request.get_full_path(),
-                latency=f"{int(latency_ms)}ms",
-                method=request.method,
-                status=response.status_code,
-            )
-        elif response.status_code >= 400:
-            self.logger.warning(
-                request.get_full_path(),
-                latency=f"{int(latency_ms)}ms",
-                method=request.method,
-                status=response.status_code,
-            )
+        if response.status_code >= 500:  # noqa: PLR2004
+            self.logger.error(request.get_full_path(), latency_ms=latency_ms, method=request.method, status=response.status_code)
+        elif response.status_code >= 400:  # noqa: PLR2004
+            self.logger.warning(request.get_full_path(), latency_ms=latency_ms, method=request.method, status=response.status_code)
         else:
-            self.logger.info(
-                request.get_full_path(),
-                latency=f"{int(latency_ms)}ms",
-                method=request.method,
-                status=response.status_code,
-            )
-
-        # Code to be executed for each request/response after
-        # the view is called.
+            self.logger.info(request.get_full_path(), latency_ms=latency_ms, method=request.method, status=response.status_code)
 
         return response
