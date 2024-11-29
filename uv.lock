@@ -565,7 +565,7 @@ wheels = [
 
 [[package]]
 name = "mh-structlog"
-version = "0.0.27.dev5+gb27dd4f.d20241129"
+version = "0.0.27.dev7+g1a88b2b.d20241129"
 source = { editable = "." }
 dependencies = [
     { name = "orjson", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
