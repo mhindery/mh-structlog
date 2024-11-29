@@ -8,7 +8,7 @@ from pathlib import Path
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
 from structlog_sentry import SentryProcessor
-from .processors import _add_flattened_extra, _render_orjson, CapExceptionFrames
+from . import processors
 
 
 class StructlogLoggingConfigExceptionError(Exception):
@@ -55,7 +55,9 @@ def setup(  # noqa: PLR0912, PLR0915
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
     elif log_format == "json":
-        shared_processors.extend([structlog.processors.dict_tracebacks, CapExceptionFrames(max_frames=2 * max_frames)])
+        shared_processors.extend(
+            [structlog.processors.dict_tracebacks, processors.CapExceptionFrames(max_frames=2 * max_frames)]
+        )
         selected_formatter = "mh_structlog_json"
 
     if include_source_location:
@@ -96,7 +98,7 @@ def setup(  # noqa: PLR0912, PLR0915
             "mh_structlog_plain": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
-                    _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
+                    processors.add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
@@ -114,7 +116,7 @@ def setup(  # noqa: PLR0912, PLR0915
             "mh_structlog_colored": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
-                    _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
+                    processors.add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
@@ -131,10 +133,10 @@ def setup(  # noqa: PLR0912, PLR0915
             "mh_structlog_json": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
-                    _add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
+                    processors.add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
-                    _render_orjson,
+                    processors.render_orjson,
                 ],
                 "foreign_pre_chain": shared_processors,
             },
