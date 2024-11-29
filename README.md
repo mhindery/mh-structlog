@@ -1,6 +1,8 @@
-# Structlog logging
+# MH-Structlog
 
-Setup the python logging system using structlog. This module configures both structlog and the standard library logging module. So your code can either use a structlog logger or keep working with the standard logging library. This way all third-party packages that is producing logs (which use the stdlib logging module) will follow your logging setup to generate structured logging.
+This package is used to setup the python logging system in combination with structlog. It configures both structlog and the standard library logging module, so your code can either use a structlog logger (which is recommended) or keep working with the standard logging library. This way all third-party packages that are producing logs (which use the stdlib logging module) will follow your logging setup and you will always output structured logging.
+
+It is a fairly opinionated setup but has some configuration options to influence the behaviour. The two output log formats are either pretty-printing (for interactive views) or json. It includes optional reporting to Sentry, and can also log to a file.
 
 ## Usage
 
@@ -20,13 +22,14 @@ you can do
 
 ```python
 import mh_structlog as logging
+logging.setup()  # necessary once at program startup, see readme further below
 
 logger = logging.getLogger(__name__)
 
 logger.info('hey')
 ```
 
-One big advantage is that you can pass arbitrary keyword arguments to our loggers when producing logs. E.g.
+One big advantage of using the structlog logger over de stdlib logging one, is that you can pass arbitrary keyword arguments to our loggers when producing logs. E.g.
 
 ```python
 import mh_structlog as logging
@@ -103,7 +106,7 @@ setup(
 getLogger().info('hey')
 ```
 
-To silence named loggers specifically (instead of setting the log level globally it can be done per named logger):
+To silence specific named loggers specifically (instead of setting the log level globally, it can be done per named logger):
 
 ```python
 from mh_structlog import *
@@ -148,4 +151,19 @@ try:
     5 / 0
 except Exception as e:
     getLogger().exception(e)
+```
+
+To enable Sentry integration, pass a dict with a config according to the arguments which [structlog-sentry](https://github.com/kiwicom/structlog-sentry?tab=readme-ov-file#usage) allows to the setup function:
+
+```python
+from mh_structlog import *
+import sentry_sdk
+
+config = {'dsn': '1234'}
+sentry_sdk.init(dsn=config['dsn'])
+
+setup(
+    sentry_config={'event_level': WARNING}  # pass everything starting from WARNING level to Sentry
+)
+
 ```
