@@ -17,8 +17,6 @@ repos:
         name: Linting python
         verbose: true
         args:
-          - --config
-          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
           - --output-format
           - full
           - --no-fix
@@ -32,8 +30,6 @@ repos:
         name: Fix linting issues in python
         stages: [manual]
         args:
-          - --config
-          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
           - --output-format
           - full
           - --fix
@@ -41,8 +37,6 @@ repos:
         alias: ruff-sort-imports
         name: Sort imports in python
         args:
-          - --config
-          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
           - --output-format
           - full
           - --select
@@ -50,9 +44,6 @@ repos:
           - --fix
       - id: ruff-format
         name: Autoformatting python
-        args:
-          - --config
-          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:

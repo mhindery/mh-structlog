@@ -50,11 +50,11 @@ class CapExceptionFrames:
     With the builtin ConsoleRenderer, this can be given as argument (max_frames), but not when dict_tracebacks is used.
     """
 
-    def __init__(self, max_frames: int):  # noqa: ANN101
+    def __init__(self, max_frames: int):
         """Set the max number of frames to keep in exception tracebacks."""
         self.max_frames = max_frames
 
-    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: ARG002, D102, ANN101
+    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: ARG002, D102
         if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
             event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
         return event_dict
@@ -115,7 +115,9 @@ def setup(  # noqa: PLR0912, PLR0915
 
     if include_source_location:
         shared_processors.append(
-            structlog.processors.CallsiteParameterAdder(parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME})
+            structlog.processors.CallsiteParameterAdder(
+                parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME}
+            )
         )
 
     if sentry_config and sentry_config.get('active', True):
@@ -157,7 +159,9 @@ def setup(  # noqa: PLR0912, PLR0915
                         pad_event=80,
                         sort_keys=True,
                         event_key="message",
-                        exception_formatter=RichTracebackFormatter(width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True),
+                        exception_formatter=RichTracebackFormatter(
+                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
+                        ),
                     ),
                 ],
                 "foreign_pre_chain": shared_processors,
@@ -172,7 +176,9 @@ def setup(  # noqa: PLR0912, PLR0915
                         pad_event=80,
                         sort_keys=True,
                         event_key="message",
-                        exception_formatter=RichTracebackFormatter(width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True),
+                        exception_formatter=RichTracebackFormatter(
+                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
+                        ),
                     ),
                 ],
                 "foreign_pre_chain": shared_processors,
@@ -247,7 +253,9 @@ def setup(  # noqa: PLR0912, PLR0915
         for lc in logging_configs:
             for k, v in lc.get("loggers", {}).items():
                 if k in {"", "root"}:
-                    raise StructlogLoggingConfigExceptionError("It is not allowed to specify a custom root logger, since structlog configures that one.")
+                    raise StructlogLoggingConfigExceptionError(
+                        "It is not allowed to specify a custom root logger, since structlog configures that one."
+                    )
                 # Add our handler if none was specified explicitly
                 if "handlers" not in v:
                     v["handlers"] = ["mh_structlog_stdout"]
