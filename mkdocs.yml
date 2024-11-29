@@ -1,9 +1,9 @@
-site_name: Platform data api
-site_url: https://clouds-of-care.gitlab.io/data-api/
+site_name: MH Structlog
+site_url: https://github.io/mhindery/mh-structlog
 site_dir: public
 docs_dir: ./docs
 
-repo_url: https://gitlab.com/clouds-of-care/platform/data-api
+repo_url: https://github.com/mhindery/mh-structlog
 edit_uri: -/edit/main/docs/
 
 theme:
@@ -86,7 +86,7 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [coc_data_api]
+          paths: [src]
           options:
             members: true
             filters: []
@@ -121,14 +121,4 @@ plugins:
 
 nav:
   - Home: index.md
-  - Architecture:
-      - architecture/data_model.md
-      - architecture/django.md
-      - architecture/app_structure.md
-      - architecture/endpoint_blueprint.md
-      - architecture/local_infrastructure.md
-  - Auth & Permissions:
-      - auth/authentication.md
-      - auth/permissions.md
-  - How-To: how-to
   - Code Reference: reference/
