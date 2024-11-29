@@ -8,7 +8,7 @@ authors = [
     { name = "Mathieu Hinderyckx", email = "mathieu.hinderyckx@gmail.com" },
 ]
 description = "Some Structlog configuration and wrappers to easily use structlog."
-version = "0.0.1"
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -21,6 +21,9 @@ dependencies = [
     "structlog>=24.4.0",
     "structlog-sentry>=2.2.1",
 ]
+
+[tool.setuptools_scm]
+version_file = "src/mh_structlog/_version.py"
 
 [dependency-groups]
 dev = ["ipdb>=0.13.13", "ipython>=8.18.1", "pre-commit>=4.0.1", "ruff>=0.8.1"]
@@ -50,6 +53,7 @@ pages = [
 
 [tool.uv]
 package = true
+cache-keys = [{ file = "pyproject.toml" }, { git = true }]
 environments = [
     "sys_platform == 'darwin'",
     "sys_platform == 'linux'",
