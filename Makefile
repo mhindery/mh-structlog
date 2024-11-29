@@ -1,6 +1,6 @@
 .SILENT:
-.PHONY : all
-all : install requirements lint format test
+.PHONY: lint fix format test tests compile install documentation models dbdocs precommit pre-commit all clean
+all: install test
 
 lint:
 	pre-commit run ruff-lint --all-files
@@ -12,26 +12,28 @@ format:
 	pre-commit run ruff-sort-imports --all-files
 	pre-commit run ruff-format --all-files
 
-# test:
-# 	echo "Testing ..."
-# 	pytest
+test:
+	echo "Testing ..."
+	docker compose up --build -d postgres
+	pytest -s --pdb --pdbcls=IPython.terminal.debugger:Pdb
+
+tests:
+	make test
 
 compile:
-	# Compile requirements from .in to .txt files
-	uv pip compile requirements.in -o requirements.txt --generate-hashes -q --emit-index-url --prerelease=allow
-	uv pip compile requirements-dev.in -o requirements-dev.txt --generate-hashes -q --emit-index-url --prerelease=allow
+	pre-commit run uv-lock --all-files
 
 install:
-	# Install python environment, downloading python if necessary
-	uv python install 3.12.5
-	uv venv --allow-existing --python-preference only-managed --python 3.12.5
-	# uv python pin
+	uv self update
+	uv sync --python-preference only-managed --python 3.12 --frozen --compile-bytecode --group dev --group tests --group pages
+	pre-commit install
+	make precommit
 
-	# Install requirements
-	uv pip install -r requirements.txt
+documentation:
+	mkdocs serve --open
 
-	# Check if installed packages are all compatible
-	uv pip check
+precommit:
+	pre-commit run --all-files
 
-	# Install precommit hooks
-	# pre-commit install
+pre-commit:
+	make precommit

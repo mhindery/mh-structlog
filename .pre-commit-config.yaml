@@ -1,0 +1,100 @@
+repos:
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.5.1
+    hooks:
+      - id: uv-lock
+        name: Creating lockfile from python dependencies
+        files: pyproject.toml
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.22
+    hooks:
+      - id: validate-pyproject
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.1
+    hooks:
+      - id: ruff
+        alias: ruff-lint
+        name: Linting python
+        verbose: true
+        args:
+          - --config
+          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
+          - --output-format
+          - full
+          - --no-fix
+          - --target-version
+          - py39
+          # # only report linting errors, do not fail on it. Reason: we check this in CI and should fail there if desired.
+          # # We should not block people from pushing code because of some linting error.
+          - --exit-zero
+      - id: ruff
+        alias: ruff-fix
+        name: Fix linting issues in python
+        stages: [manual]
+        args:
+          - --config
+          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
+          - --output-format
+          - full
+          - --fix
+      - id: ruff
+        alias: ruff-sort-imports
+        name: Sort imports in python
+        args:
+          - --config
+          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
+          - --output-format
+          - full
+          - --select
+          - I
+          - --fix
+      - id: ruff-format
+        name: Autoformatting python
+        args:
+          - --config
+          - ~/repositories/cloudsofcare/python-code-quality/pyproject.toml
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+        name: Fixing newlines at end of files
+        # types_or: [python, html, markdown, javascript, css, yaml]
+      - id: trailing-whitespace
+        name: Fixing trailing whitespace at end of files
+        # types_or: [python, html, markdown, javascript, css, yaml]
+      - id: check-json
+        name: Check JSON for valid syntax
+      - id: pretty-format-json
+        name: Format JSON files
+        args:
+          - --autofix
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.96.1
+    hooks:
+      - id: terraform_fmt
+  # Disabled for now as we cannot set a config here via args
+  # - repo: https://github.com/google/yamlfmt
+  #   rev: v0.14.0
+  #   hooks:
+  #     - id: yamlfmt
+  #       name: Format YAML files
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        name: Lint YAML files
+        args:
+          - -d
+          - "{extends: relaxed, rules: {line-length: {max: 120}}}"
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.13.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown files
+        args:
+          - -r
+          - ~MD013,~MD033,~MD007
+  - repo: https://github.com/mrtazz/checkmake.git
+    rev: 0.2.2
+    hooks:
+      - id: checkmake

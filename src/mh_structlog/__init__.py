@@ -21,18 +21,18 @@ def get_logger(name: t.Optional[str] = None):  # noqa: ANN201
 
 
 __all__ = [
-    "setup",
-    "get_logger",
-    "getLogger",
-    "filter_named_logger",
-    "INFO",
+    "CRITICAL",
     "DEBUG",
     "ERROR",
+    "FATAL",
+    "INFO",
     "WARN",
     "WARNING",
-    "CRITICAL",
-    "FATAL",
     "StructLogAccessLoggingMiddleware",
+    "filter_named_logger",
+    "getLogger",
     "getLogger",
     "get_logger",
+    "get_logger",
+    "setup",
 ]
