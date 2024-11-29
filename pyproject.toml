@@ -53,7 +53,7 @@ pages = [
 
 [tool.uv]
 package = true
-cache-keys = [{ file = "pyproject.toml" }, { git = true }]
+cache-keys = [{ file = "pyproject.toml" }]
 environments = [
     "sys_platform == 'darwin'",
     "sys_platform == 'linux'",
