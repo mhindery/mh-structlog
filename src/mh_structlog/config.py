@@ -7,7 +7,6 @@ import structlog
 from pathlib import Path
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
-from structlog_sentry import SentryProcessor
 from . import processors
 
 
@@ -68,7 +67,7 @@ def setup(  # noqa: PLR0912, PLR0915
         )
 
     if sentry_config and sentry_config.get('active', True):
-        shared_processors.append(SentryProcessor(**sentry_config))
+        shared_processors.append(processors.SentryProcessor(**sentry_config))
 
     wrapper_class = structlog.stdlib.BoundLogger
     if global_filter_level is not None:
