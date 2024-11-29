@@ -59,7 +59,7 @@ class CapExceptionFrames:
 class SentryProcessor(_SentryProcessor):
     """The SentryProcessor but with some of our own defaults and slight customization applied."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):  # noqa: D107
         # Unless otherwise specified, add all extra attributes from the log to Sentry as tags.
         # Explicitly pass tag_keys=None to avoid this behaviour.
         if 'tag_keys' not in kwargs:
