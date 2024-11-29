@@ -31,10 +31,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install the project
         run: uv sync --all-extras --frozen --compile-bytecode --group dev --group tests
-
       - name: Lint with ruff
         run: |
-          uv run ruff check --no-fix --output-format full
+          uv run ruff check --no-fix --output-format full --target-version 39
     # - name: Test with pytest
     #   run: |
     #     pytest
