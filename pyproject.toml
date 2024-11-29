@@ -16,18 +16,22 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["structlog", "orjson"]
+dependencies = [
+    "orjson>=3.10.12",
+    "structlog>=24.4.0",
+    "structlog-sentry>=2.2.1",
+]
 
 [dependency-groups]
 dev = ["ipdb>=0.13.13", "ipython>=8.18.1", "pre-commit>=4.0.1", "ruff>=0.8.1"]
 tests = [
     "coverage>=7.5.3",
+    "pytest>=8.3.3",
     "pytest-cov>=5.0.0",
     "pytest-django>=4.8.0",
     "pytest-env>=1.1.5",
     "pytest-randomly>=3.15.0",
     "pytest-sugar>=1.0.0",
-    "pytest>=8.2.2",
 ]
 pages = [
     "black>=24.10.0",

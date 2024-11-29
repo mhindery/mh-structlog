@@ -9,13 +9,14 @@ import orjson
 from structlog.typing import EventDict
 from structlog.processors import CallsiteParameter
 from structlog.dev import RichTracebackFormatter
+from structlog_sentry import SentryProcessor
 
 
 class StructlogLoggingConfigExceptionError(Exception):
     """Exception to raise if the config is not correct."""
 
 
-# Default log message so we can find out which keys on a LogRecord are 'extra'
+# Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
 
 
@@ -78,6 +79,7 @@ def setup(  # noqa: PLR0912, PLR0915
     log_file_format: t.Optional[t.Literal["console", "json"]] = None,
     testing_mode: bool = False,  # noqa: FBT001, FBT002
     max_frames: int = 100,
+    sentry_config: t.Optional[dict] = None,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
 
@@ -93,6 +95,7 @@ def setup(  # noqa: PLR0912, PLR0915
         structlog.stdlib.add_logger_name,  # add the logger name
         structlog.stdlib.add_log_level,  # add the log level as textual representation
         structlog.processors.TimeStamper(fmt="iso", utc=True),  # add a timestamp
+        structlog.contextvars.merge_contextvars,  # add variables and bound data from global context
     ]
 
     if max_frames <= 0:
@@ -115,6 +118,9 @@ def setup(  # noqa: PLR0912, PLR0915
             structlog.processors.CallsiteParameterAdder(parameters={CallsiteParameter.PATHNAME, CallsiteParameter.LINENO, CallsiteParameter.FUNC_NAME})
         )
 
+    if sentry_config and sentry_config.get('active', True):
+        shared_processors.append(SentryProcessor(**sentry_config))
+
     wrapper_class = structlog.stdlib.BoundLogger
     if global_filter_level is not None:
         wrapper_class = structlog.make_filtering_bound_logger(global_filter_level)
@@ -124,7 +130,6 @@ def setup(  # noqa: PLR0912, PLR0915
         processors=[
             *shared_processors,
             structlog.stdlib.filter_by_level,  # filter based on the stdlib logging config
-            structlog.contextvars.merge_contextvars,  # add variables and bound data from global context
             structlog.stdlib.PositionalArgumentsFormatter(),  # Allow string formatting with positional arguments in log calls
             structlog.processors.StackInfoRenderer(
                 additional_ignores=['mh_structlog']
