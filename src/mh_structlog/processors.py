@@ -10,7 +10,7 @@ from structlog.typing import EventDict
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
 
 
-def _add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
+def add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
     """Include the content of 'extra' in the output log, flattened the attributes."""
     if event_dict.get("_from_structlog", False):
         # Coming from structlog logging call
@@ -34,7 +34,7 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
     return event_dict
 
 
-def _render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
+def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
     """Render the event_dict as a json string using orjson."""
     return orjson.dumps(event_dict, default=repr).decode()
 
