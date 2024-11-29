@@ -33,7 +33,7 @@ jobs:
         run: uv sync --all-extras --frozen --compile-bytecode --group dev --group tests
       - name: Lint with ruff
         run: |
-          uv run ruff check --no-fix --output-format full --target-version 39
+          uv run ruff check --no-fix --output-format full --target-version py39
     # - name: Test with pytest
     #   run: |
     #     pytest
