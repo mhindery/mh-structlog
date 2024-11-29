@@ -1,0 +1,134 @@
+site_name: Platform data api
+site_url: https://clouds-of-care.gitlab.io/data-api/
+site_dir: public
+docs_dir: ./docs
+
+repo_url: https://gitlab.com/clouds-of-care/platform/data-api
+edit_uri: -/edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  icon:
+    repo: fontawesome/brands/gitlab
+
+  features:
+    - content.action.edit
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.path
+    - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+
+# Extensions
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - toc:
+      permalink: true
+
+plugins:
+  # - optimize:
+  #     optimize_png: false
+  - search
+  - roamlinks
+  - glightbox
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - git-authors
+  - include_dir_to_nav
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [coc_data_api]
+          options:
+            members: true
+            filters: []
+            heading_level: 1
+            members_order: source
+            show_root_heading: true
+            show_bases: true
+            separate_signature: true
+            line_length: 80
+            show_signature: true
+            signature_crossrefs: true
+            unwrap_annotated: false
+            show_signature_annotations: true
+            show_source: true
+            summary:
+              attributes: true
+              functions: true
+              classes: true
+              modules: false
+            show_if_no_docstring: true
+            show_object_full_path: false
+            show_labels: true
+            show_category_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            annotations_path: brief
+            docstring_style: sphinx
+            docstring_section_style: spacy
+            docstring_options:
+              ignore_init_summary: false
+            merge_init_into_class: false
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - architecture/data_model.md
+      - architecture/django.md
+      - architecture/app_structure.md
+      - architecture/endpoint_blueprint.md
+      - architecture/local_infrastructure.md
+  - Auth & Permissions:
+      - auth/authentication.md
+      - auth/permissions.md
+  - How-To: how-to
+  - Code Reference: reference/
