@@ -67,6 +67,12 @@ def setup(  # noqa: PLR0912, PLR0915
         )
 
     if sentry_config and sentry_config.get('active', True):
+        # By default, ignore our own request access logger (which is only used when you use the Django access logger from this package in your project).
+        # When a request errors, there are normally other exceptions that show up in Sentry for it; adding the
+        # access log at the end only results in a duplicate event.
+        #
+        # When you specify ignore_loggers manually, it is not ignored anymore, so you should add it yourself (when wanted).
+        sentry_config.setdefault('ignore_loggers', ['mh_structlog.django.access'])
         shared_processors.append(processors.SentryProcessor(**sentry_config))
 
     wrapper_class = structlog.stdlib.BoundLogger
