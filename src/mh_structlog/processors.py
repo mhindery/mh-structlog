@@ -40,6 +40,21 @@ def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) ->
     return orjson.dumps(event_dict, default=repr).decode()
 
 
+class FieldRenamer:
+    """Rename fields in the event dict."""
+
+    def __init__(self, enable, name_from: str, name_to: str):  # noqa: D107
+        self.enable = enable
+        self.name_from = name_from
+        self.name_to = name_to
+
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001
+        if self.enable and self.name_from in event_dict:
+            event_dict[self.name_to] = event_dict.pop(self.name_from)
+
+        return event_dict
+
+
 class CapExceptionFrames:
     """Limit the number of frames in the exception traceback.
 

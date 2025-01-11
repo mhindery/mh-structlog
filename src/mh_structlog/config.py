@@ -15,7 +15,7 @@ class StructlogLoggingConfigExceptionError(Exception):
 
 
 def setup(  # noqa: PLR0912, PLR0915
-    log_format: t.Optional[t.Literal["console", "json"]] = None,
+    log_format: t.Optional[t.Literal["console", "json", "gcp_json"]] = None,
     logging_configs: t.Optional[t.List[dict]] = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
     global_filter_level: t.Optional[int] = None,
@@ -48,7 +48,7 @@ def setup(  # noqa: PLR0912, PLR0915
     # Configure stdout formatter
     if log_format is None:
         log_format = "console" if sys.stdout.isatty() else "json"
-    if log_format not in {"console", "json"}:
+    if log_format not in {"console", "json", "gcp_json"}:
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
     if sentry_config and sentry_config.get('active', True):
@@ -62,7 +62,7 @@ def setup(  # noqa: PLR0912, PLR0915
 
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
-    elif log_format == "json":
+    elif log_format in {"json", "gcp_json"}:
         shared_processors.extend(
             [structlog.processors.dict_tracebacks, processors.CapExceptionFrames(max_frames=2 * max_frames)]
         )
@@ -141,6 +141,9 @@ def setup(  # noqa: PLR0912, PLR0915
                     processors.add_flattened_extra,  # extract the content of 'extra' and add it as entries in the event dict
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
+                    processors.FieldRenamer(
+                        log_format == 'gcp_json', 'level', 'severity'
+                    ),  # rename the level field for GCP
                     processors.render_orjson,
                 ],
                 "foreign_pre_chain": shared_processors,
