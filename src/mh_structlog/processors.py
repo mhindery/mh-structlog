@@ -13,7 +13,7 @@ _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), No
 
 def add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
     """Include the content of 'extra' in the output log, flattened the attributes."""
-    if event_dict.get("_from_structlog", False):
+    if event_dict.get("_from_structlog"):
         # Coming from structlog logging call
         extra = event_dict.pop("extra", {})
         event_dict.update(extra)
