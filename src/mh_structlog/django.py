@@ -30,6 +30,8 @@ class StructLogAccessLoggingMiddleware:
                 'requestMethod': request.method,
                 'requestUrl': request_path,
                 'status': str(response.status_code),
+                'latency': f"{latency_ms / 1000}s",
+                "userAgent": request.headers.get('User-Agent', ''),
             }
 
         if response.status_code >= 500:  # noqa: PLR2004
