@@ -25,7 +25,7 @@ compile:
 
 install:
 	uv self update
-	uv sync --python-preference only-managed --python 3.12 --frozen --compile-bytecode --group dev --group tests --group pages
+	uv sync --python-preference only-managed --python 3.12 --frozen --compile-bytecode --all-extras --group dev --group tests --group pages
 	pre-commit install
 	make precommit
 

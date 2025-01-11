@@ -376,7 +376,7 @@ name = "importlib-metadata"
 version = "8.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "zipp", marker = "(python_full_version < '3.10' and sys_platform == 'darwin') or (python_full_version < '3.10' and sys_platform == 'linux') or (python_full_version < '3.10' and sys_platform == 'win32')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cd/12/33e59336dca5be0c398a7482335911a33aa0e20776128f038019f1a95f1b/importlib_metadata-8.5.0.tar.gz", hash = "sha256:71522656f0abace1d072b9e5481a48f07c138e00f079c38c8f883823f9c26bd7", size = 55304 }
 wheels = [
@@ -591,7 +591,7 @@ wheels = [
 
 [[package]]
 name = "mh-structlog"
-version = "0.0.30.dev1+gd5c19cf.d20250111"
+version = "0.0.31.dev0+gdac0917.d20250111"
 source = { editable = "." }
 dependencies = [
     { name = "orjson", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -675,7 +675,7 @@ version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "(platform_system == 'Windows' and sys_platform == 'darwin') or (platform_system == 'Windows' and sys_platform == 'linux') or (platform_system == 'Windows' and sys_platform == 'win32')" },
     { name = "ghp-import", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "importlib-metadata", marker = "(python_full_version < '3.10' and sys_platform == 'darwin') or (python_full_version < '3.10' and sys_platform == 'linux') or (python_full_version < '3.10' and sys_platform == 'win32')" },
     { name = "jinja2", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },

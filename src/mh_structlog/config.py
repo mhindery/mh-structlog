@@ -10,6 +10,9 @@ from structlog.dev import RichTracebackFormatter
 from . import processors
 
 
+SELECTED_LOG_FORMAT = 'console'
+
+
 class StructlogLoggingConfigExceptionError(Exception):
     """Exception to raise if the config is not correct."""
 
@@ -26,6 +29,7 @@ def setup(  # noqa: PLR0912, PLR0915
     sentry_config: t.Optional[dict] = None,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
+    global SELECTED_LOG_FORMAT  # noqa: PLW0603
 
     # Unless we are in testing mode, don't configure logging if it was already configured.
     # During testing, we need te flexibility to configure logging multiple times.
@@ -50,6 +54,8 @@ def setup(  # noqa: PLR0912, PLR0915
         log_format = "console" if sys.stdout.isatty() else "json"
     if log_format not in {"console", "json", "gcp_json"}:
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
+
+    SELECTED_LOG_FORMAT = log_format
 
     if sentry_config and sentry_config.get('active', True):
         # By default, ignore our own request access logger (which is only used when you use the Django access logger from this package in your project).
