@@ -43,12 +43,12 @@ def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) ->
 class FieldRenamer:
     """Rename fields in the event dict."""
 
-    def __init__(self, enable, name_from: str, name_to: str):  # noqa: D107
+    def __init__(self, enable: bool, name_from: str, name_to: str):  # noqa: D107
         self.enable = enable
         self.name_from = name_from
         self.name_to = name_to
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
         if self.enable and self.name_from in event_dict:
             event_dict[self.name_to] = event_dict.pop(self.name_from)
 
