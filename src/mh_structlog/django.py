@@ -28,10 +28,11 @@ class StructLogAccessLoggingMiddleware:
         if SELECTED_LOG_FORMAT == 'gcp_json':
             fields_to_log['httpRequest'] = {
                 'requestMethod': request.method,
-                'requestUrl': request_path,
-                'status': str(response.status_code),
+                'requestUrl': request.build_absolute_uri(),
+                'status': response.status_code,
                 'latency': f"{latency_ms / 1000}s",
                 "userAgent": request.headers.get('User-Agent', ''),
+                "responseSize": str(response.headers.get('Content-Length', 0)),
             }
 
         if response.status_code >= 500:  # noqa: PLR2004
