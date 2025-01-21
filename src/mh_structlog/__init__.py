@@ -4,7 +4,6 @@ from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, WARN, WARNING
 import structlog
 
 from .config import filter_named_logger, setup
-from .django import StructLogAccessLoggingMiddleware
 from .utils import determine_name_for_logger
 
 
@@ -28,7 +27,6 @@ __all__ = [
     "INFO",
     "WARN",
     "WARNING",
-    "StructLogAccessLoggingMiddleware",
     "filter_named_logger",
     "getLogger",
     "getLogger",
