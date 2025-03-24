@@ -34,11 +34,14 @@ class StructLogAccessLoggingMiddleware:
                 "userAgent": request.headers.get('User-Agent', ''),
                 "responseSize": str(response.headers.get('Content-Length', 0)),
             }
+        
+        # in case Sentry is enabled, prevent logging to it.
+        # The actual exception will be logged if necessary somewhere else, but the response access log to the client should not be on there.
 
         if response.status_code >= 500:  # noqa: PLR2004
-            self.logger.error(request_path, **fields_to_log)
+            self.logger.error(request_path, sentry_skip=True, **fields_to_log)
         elif response.status_code >= 400:  # noqa: PLR2004
-            self.logger.warning(request_path, **fields_to_log)
+            self.logger.warning(request_path, sentry_skip=True, **fields_to_log)
         else:
             self.logger.info(request_path, **fields_to_log)
 
