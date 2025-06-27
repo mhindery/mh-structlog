@@ -67,7 +67,7 @@ def setup(  # noqa: PLR0912, PLR0915
         shared_processors.append(processors.SentryProcessor(**sentry_config))
     else:
         # In case logging statements add sentry_skip, but Sentry isn't configured at all, we do not want to output that key.
-        shared_processors.append(processors.FieldDropper(['sentry_skip' ]))
+        shared_processors.append(processors.FieldDropper(['sentry_skip']))
 
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
