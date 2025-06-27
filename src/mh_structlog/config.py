@@ -65,6 +65,9 @@ def setup(  # noqa: PLR0912, PLR0915
         # When you specify ignore_loggers manually, it is not ignored anymore, so you should add it yourself (when wanted).
         sentry_config.setdefault('ignore_loggers', ['mh_structlog.django.access'])
         shared_processors.append(processors.SentryProcessor(**sentry_config))
+    else:
+        # In case logging statements add sentry_skip, but Sentry isn't configured at all, we do not want to output that key.
+        shared_processors.append(processors.FieldDropper(['sentry_skip' ]))
 
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"

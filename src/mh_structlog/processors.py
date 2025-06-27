@@ -40,6 +40,18 @@ def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) ->
     return orjson.dumps(event_dict, default=repr).decode()
 
 
+class FieldDropper:
+    """Drop fields from the event dict if present."""
+
+    def __init__(self, fields: list):  # noqa: D107
+        self.fields = fields
+
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+        for field in self.fields:
+            event_dict.pop(field, None)
+        return event_dict
+
+
 class FieldRenamer:
     """Rename fields in the event dict."""
 
