@@ -11,68 +11,62 @@ on:
     branches: ["main"]
 
 jobs:
-  check-test:
-    runs-on: ubuntu-latest
+  static-analysis:
+    runs-on: ubuntu-slim
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install the project
         run: uv sync --all-extras --frozen --compile-bytecode --group dev --group tests
       - name: Lint with ruff
         run: |
-          uv run ruff check --no-fix --output-format full --target-version py39
-    # - name: Test with pytest
-    #   run: |
-    #     pytest
+          uv run ruff check --no-fix
 
   build:
     name: >-
       Build the Python package
     needs:
-      - check-test
-    runs-on: ubuntu-latest
+      - static-analysis
+    runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: Set up Python "3.12"
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+      - name: Determine Version
+        id: version_step # step id used as a reference for output values
+        uses: gittools/actions/gitversion/execute@v4.2.0
       - name: Build the package
         run: |
-          uv build
+          uv build --clear
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
 
+
   publish-to-pypi:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/') # only publish to PyPI on tag pushes
+    name: Upload release to PyPI
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     needs:
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment:
       name: pypi
-      url: https://pypi.org/p/mh-structlog # Replace <package-name> with your PyPI project name
+      url: https://pypi.org/p/mh-structlog
     permissions:
       id-token: write
 
