@@ -96,7 +96,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         processors=[
             *shared_processors,
             structlog.stdlib.filter_by_level,  # filter based on the stdlib logging config
-            structlog.stdlib.render_to_log_args_and_kwargs,
+            structlog.stdlib.PositionalArgumentsFormatter(),  # Allow string formatting with positional arguments in log calls
             structlog.processors.StackInfoRenderer(
                 additional_ignores=['mh_structlog']
             ),  # when you create a log and specify stack_info=True, add a stacktrace to the log
