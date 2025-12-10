@@ -6,6 +6,8 @@ name: Python package
 on:
   push: {}
 
+  workflow_dispatch: {}
+
 jobs:
   static-analysis:
     runs-on: ubuntu-slim
@@ -63,7 +65,7 @@ jobs:
 
   publish-to-pypi:
     name: Upload release to PyPI
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags'))
     needs:
       - build
     runs-on: ubuntu-slim
