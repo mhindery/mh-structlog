@@ -96,7 +96,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         processors=[
             *shared_processors,
             structlog.stdlib.filter_by_level,  # filter based on the stdlib logging config
-            structlog.stdlib.PositionalArgumentsFormatter(),  # Allow string formatting with positional arguments in log calls
+            structlog.stdlib.render_to_log_args_and_kwargs,
             structlog.processors.StackInfoRenderer(
                 additional_ignores=['mh_structlog']
             ),  # when you create a log and specify stack_info=True, add a stacktrace to the log
@@ -120,11 +120,11 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
                         colors=False,
-                        pad_event=80,
+                        pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
+                            width=None, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
@@ -137,11 +137,11 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
-                        pad_event=80,
+                        pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
                         exception_formatter=RichTracebackFormatter(
-                            width=-1, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
+                            width=None, max_frames=max_frames, show_locals=True, locals_hide_dunder=True
                         ),
                     ),
                 ],
