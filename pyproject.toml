@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.7.20,<0.8.0"]
+requires = ["uv_build>=0.9.17,<0.10.0"]
 build-backend = "uv_build"
 
 [project]
@@ -8,7 +8,7 @@ authors = [
     { name = "Mathieu Hinderyckx", email = "mathieu.hinderyckx@gmail.com" },
 ]
 description = "Some Structlog configuration and wrappers to easily use structlog."
-version = "0.0.37"
+version = "0.0.1.dev0"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -17,9 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "orjson>=3.10.12",
+    "orjson>=3.11.5",
     "rich>=14.0.0",
-    "structlog>=24.4.0",
+    "structlog>=25.5.0",
     "structlog-sentry>=2.2.1",
 ]
 
@@ -53,6 +53,7 @@ pages = [
 ]
 
 [tool.uv]
+required-version = ">=0.9.11"
 package = true
 cache-keys = [{ file = "pyproject.toml" }]
 environments = [
@@ -64,11 +65,10 @@ environments = [
 # ==== ruff ====
 [tool.ruff]
 line-length = 120
-extend-include = ["*.ipynb"]
 indent-width = 4
 preview = false
 required-version = ">=0.4.5"
-target-version = "py312"
+target-version = "py39"
 unsafe-fixes = true
 
 # Overwritten in CI/CD
@@ -80,24 +80,36 @@ preview = true
 select = [
     # https://docs.astral.sh/ruff/rules/#rules
     "A",
+    "AIR",
     "ANN",
     "ARG",
     "ASYNC",
     "B",
     "BLE",
     "C4",
+    "C90",
     "COM",
-    "D",
+    # "D",
+    "DJ",
     "DOC",
+    "DTZ",
     "E",
+    "EM",
+    "EXE",
     "F",
+    "FA",
     "FBT",
     "FLY",
     "FURB",
     "G",
     "I",
+    "ICN",
+    "INP",
+    "INT",
     "ISC",
+    "LOG",
     "N",
+    "NPY",
     "PD",
     "PERF",
     "PGH",
@@ -105,17 +117,24 @@ select = [
     "PL",
     "PT",
     "PTH",
+    "PYI",
     "Q",
     "R",
     "RET",
     "RSE",
     "RUF",
+    "S",
     "SIM",
     "SLF",
     "SLOT",
+    "T10",
     "T20",
+    "TC",
+    "TID",
     "TRY",
     "UP",
+    "YTT",
+    # "ERA",   # commented out code; not always best to have it removed forcefully, sometimes want to keep
 ]
 
 ignore = [
@@ -129,6 +148,8 @@ ignore = [
     "D106",    # Missing docstring in public nested class
     "D202",    # No blank line after function docstring
     "E501",    # Line too long
+    "EM101",   # Exception must not use a string literal, assign to variable first
+    "EM102",   # Exception must not use an f-string literal, assign to variable first
     "ISC001",  # Conflicting with formatter
     "PD011",   # pandas-use-of-dot-values. Ignored because it gives a lot of false positives every time .values is used on something.
     "Q000",    # Single quotes found but double quotes preferred
@@ -159,43 +180,53 @@ indent-style = "space"
 quote-style = "preserve"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
-exclude = ["*.pyi", "**/migrations/*.py"]
+exclude = ["*.pyi", "__pypackages__/", ".venv/", "env/", "venv/", ".git/", ".hg/", ".mypy_cache/", ".tox/", ".nox/", ".pytest_cache/", ".ruff_cache/"]
+
 
 # Like Black, respect magic trailing commas.
 skip-magic-trailing-comma = true
 
 # 4. Ignore `E402` (import violations) in all `__init__.py` files, and in select subdirectories.
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "D104"]
+"__init__.py" = ["E402", "D104", "F403"]
 "**/{tests,docs,tools}/*" = [
-    "E402",
-    "D101",
-    "D103",
-    "ARG001",
     "ANN201",
-    "PLR2004",
+    "ARG001",
+    "ARG002",
+    "D101",
+    "D102",
+    "D103",
+    "DOC402",
+    "DJ008",
+    "E402",
+    "PLC2701",
     "PLR0914",
     "PLR0915",
+    "PLR2004",
+    "S101",
+    "S105",
+    "S311",
+    "SLF001",
 ]
 "test*.py" = [
-    "E402",
-    "D101",
-    "D103",
     "ANN201",
     "ARG001",
-    "PLR2004",
+    "ARG002",
+    "D101",
+    "D102",
+    "D103",
+    "DOC402",
+    "DJ008",
+    "E402",
+    "PLC2701",
     "PLR0914",
     "PLR0915",
+    "PLR2004",
+    "S101",
+    "S105",
+    "S311",
+    "SLF001",
 ]
-# Django-specific rules
-"**/migrations/*.py" = ["I", "D", "RUF012", "RUF001"]
-"**/factories.py" = ["D106", "D101"]
-"**/management/commands/*.py" = ["D101"]
-"apps.py" = ["D101", "D102", "PLC0415", "F401"]
-"admin.py" = ["D101", "D103", "D102", "RUF012", "ARG002"]
-"**/*views.py" = ["ARG002"]
-"forms.py" = ["D101", "RUF012"]
-"**/api/serializers.py" = ["D101"]
 
 [tool.ruff.lint.pylint]
 max-args = 20
