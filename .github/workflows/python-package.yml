@@ -43,7 +43,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install the project
         run: uv sync --all-extras --frozen --compile-bytecode --group dev --group tests
-      - name: Lint with ruff
+      - name: Run tests with pytest
         run: |
           uv run pytest
 
