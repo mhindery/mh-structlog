@@ -46,6 +46,13 @@ jobs:
         uses: gittools/actions/gitversion/execute@v4.2.0
       - name: Build the package
         run: |
+          if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
+            python_package_version="$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
+          else
+            python_package_version="$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch.dev+$GitVersion_BranchName.$GitVersion_CommitsSinceVersionSource.$GitVersion_ShortSha"
+          fi
+
+          uv version $python_package_version
           uv build --clear
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
