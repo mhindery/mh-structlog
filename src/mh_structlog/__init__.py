@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import typing as t
 from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, WARN, WARNING
 
 import structlog
