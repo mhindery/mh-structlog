@@ -148,6 +148,8 @@ ignore = [
     "D106",    # Missing docstring in public nested class
     "D202",    # No blank line after function docstring
     "E501",    # Line too long
+    "EM101",   # Exception must not use a string literal, assign to variable first
+    "EM102",   # Exception must not use an f-string literal, assign to variable first
     "ISC001",  # Conflicting with formatter
     "PD011",   # pandas-use-of-dot-values. Ignored because it gives a lot of false positives every time .values is used on something.
     "Q000",    # Single quotes found but double quotes preferred

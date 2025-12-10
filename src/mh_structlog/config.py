@@ -1,12 +1,15 @@
-# ruff: noqa: UP006,UP007
+from __future__ import annotations
+
 import logging  # noqa: I001
 import logging.config
 import sys
 import typing as t
-import structlog
 from pathlib import Path
-from structlog.processors import CallsiteParameter
+
+import structlog
 from structlog.dev import RichTracebackFormatter
+from structlog.processors import CallsiteParameter
+
 from . import processors
 
 
@@ -17,16 +20,16 @@ class StructlogLoggingConfigExceptionError(Exception):
     """Exception to raise if the config is not correct."""
 
 
-def setup(  # noqa: PLR0912, PLR0915
-    log_format: t.Optional[t.Literal["console", "json", "gcp_json"]] = None,
-    logging_configs: t.Optional[t.List[dict]] = None,
+def setup(  # noqa: PLR0912, PLR0915, C901
+    log_format: t.Literal["console", "json", "gcp_json"] | None = None,
+    logging_configs: list[dict] | None = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
-    global_filter_level: t.Optional[int] = None,
-    log_file: t.Optional[t.Union[str, Path]] = None,
-    log_file_format: t.Optional[t.Literal["console", "json"]] = None,
+    global_filter_level: int | None = None,
+    log_file: str | Path | None = None,
+    log_file_format: t.Literal["console", "json"] | None = None,
     testing_mode: bool = False,  # noqa: FBT001, FBT002
     max_frames: int = 100,
-    sentry_config: t.Optional[dict] = None,
+    sentry_config: dict | None = None,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
     global SELECTED_LOG_FORMAT  # noqa: PLW0603
