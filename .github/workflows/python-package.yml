@@ -31,7 +31,7 @@ jobs:
       Build the Python package
     needs:
       - static-analysis
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
