@@ -207,7 +207,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
             "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
             "class": "logging.FileHandler",
             "formatter": selected_file_formatter,
-            'filename': log_file.name,
+            'filename': str(log_file.resolve()),
         }
         stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
         # Add a named logger to log to the file only (the root logger logs to both stdout and file)
