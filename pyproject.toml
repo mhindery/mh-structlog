@@ -34,12 +34,12 @@ version_file = "src/mh_structlog/_version.py"
 dev = ["ipdb>=0.13.13", "ipython>=8.18.1", "pre-commit>=4.0.1", "ruff>=0.12.1"]
 tests = [
     "coverage>=7.5.3",
-    "pytest>=8.3.3",
-    "pytest-cov>=5.0.0",
-    "pytest-django>=4.8.0",
-    "pytest-env>=1.1.5",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-django>=4.11.1",
+    "pytest-env>=1.2.0",
     "pytest-randomly>=3.15.0",
-    "pytest-sugar>=1.0.0",
+    "pytest-sugar>=1.1.1",
 ]
 pages = [
     "black>=24.10.0",
@@ -263,10 +263,10 @@ lines-after-imports = 2
 # ==== pytest ====
 [tool.pytest_env]
 ENVIRONMENT = "test"
+COLOR = 1
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-s --durations=5 -v --import-mode=importlib --cov --cov-report=term --cov-report=html --cov-report=xml --junit-xml=junit.xml"
+[tool.pytest]
+addopts = ["-s", "--durations=5", "-v", "--import-mode=importlib", "--cov", "--cov-report=term", "--cov-report=html", "--cov-report=xml", "--junit-xml=junit.xml"]
 
 junit_family = 'xunit2'
 junit_suite_name = "test_suite"
@@ -274,10 +274,7 @@ junit_logging = 'all'
 junit_log_passing_tests = true
 junit_duration_report = "call"
 
-color = "yes"
-
 python_files = ["*/tests.py", "*/test_*.py", "*/tests_*.py", "*/*.py"]
-pythonpath = ["src"]
 testpaths = ["tests", "src"]
 
 filterwarnings = [
@@ -305,7 +302,7 @@ branch = true
 
 [tool.coverage.report]
 format = "text"
-skip_empty = true
+skip_empty = false
 precision = 2
 
 [tool.coverage.term]
