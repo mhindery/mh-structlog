@@ -1,3 +1,4 @@
+import re
 from collections.abc import Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from io import StringIO
@@ -71,3 +72,20 @@ def test_logging_json():
         'message': 'JSON log message',
         'timestamp': '2025-12-11T12:01:02Z',
     }
+
+@freeze_time("2025-12-11 12:01:02")
+def test_logging_console():
+    reset_defaults()
+
+    with capture_output() as (out, _err):
+        setup(log_format="console", testing_mode=True, logging_configs=[filter_named_logger("asyncio", ERROR)])
+        logger = get_logger("test_logger_console")
+        logger.info("Console log message", keyA="valueA", keyB=100)
+
+    data = out.getvalue()
+    data = re.sub(r'\x1b\[(;?[0-9]{1,3})+[mGK]', '', data)  # Remove ANSI color codes for testing
+
+    assert (
+        data
+        == '2025-12-11T12:01:02Z [info     ] Console log message                                                              [test_logger_console] keyA=valueA keyB=100\n'
+    )

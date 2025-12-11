@@ -120,6 +120,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
                         colors=False,
+                        force_colors=False,
                         pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
@@ -137,6 +138,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
+                        colors=True,
                         pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
