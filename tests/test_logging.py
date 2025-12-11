@@ -75,6 +75,7 @@ def test_logging_json():
         'timestamp': '2025-12-11T12:01:02Z',
     }
 
+
 @freeze_time("2025-12-11 12:01:02")
 def test_logging_console():
     reset_defaults()
