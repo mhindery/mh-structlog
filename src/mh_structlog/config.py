@@ -120,6 +120,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
                         colors=False,
+                        force_colors=False,
                         pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
@@ -137,6 +138,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,  # remove some fields used by structlogs internal logic
                     structlog.processors.EventRenamer("message"),
                     structlog.dev.ConsoleRenderer(
+                        colors=True,
                         pad_event_to=80,
                         sort_keys=True,
                         event_key="message",
@@ -205,7 +207,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
             "level": "DEBUG" if global_filter_level is None else logging.getLevelName(global_filter_level),
             "class": "logging.FileHandler",
             "formatter": selected_file_formatter,
-            'filename': log_file.name,
+            'filename': str(log_file.resolve()),
         }
         stdlib_logging_config['loggers']['']['handlers'].append('mh_structlog_file')
         # Add a named logger to log to the file only (the root logger logs to both stdout and file)
