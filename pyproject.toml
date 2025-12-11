@@ -264,9 +264,6 @@ lines-after-imports = 2
 [tool.pytest_env]
 ENVIRONMENT = "test"
 
-[tool.pytest]
-color = "yes"
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-s --durations=5 -v --import-mode=importlib --cov --cov-report=term --cov-report=html --cov-report=xml --junit-xml=junit.xml"
@@ -276,6 +273,8 @@ junit_suite_name = "test_suite"
 junit_logging = 'all'
 junit_log_passing_tests = true
 junit_duration_report = "call"
+
+color = "yes"
 
 python_files = ["*/tests.py", "*/test_*.py", "*/tests_*.py", "*/*.py"]
 pythonpath = ["src"]
