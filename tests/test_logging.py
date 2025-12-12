@@ -10,6 +10,7 @@ import orjson
 import pytest
 from freezegun import freeze_time
 from structlog import reset_defaults
+from structlog.contextvars import clear_contextvars
 
 from mh_structlog import ERROR, filter_named_logger, get_logger, setup
 
@@ -28,6 +29,7 @@ def capture_output() -> Generator[tuple[TextIO, TextIO]]:
 @freeze_time("2025-12-11 12:01:02")
 def test_setup_twice():
     reset_defaults()
+    clear_contextvars()
 
     with capture_output() as (out, _err):
         setup(log_format="json", testing_mode=False, logging_configs=[filter_named_logger("asyncio", ERROR)])
@@ -45,10 +47,12 @@ def test_setup_twice():
 
 def test_setup_invalid_params():
     reset_defaults()
+    clear_contextvars()
     with pytest.raises(Exception, match="max_frames should be a positive integer."):  # noqa: RUF043
         setup(max_frames=-1)
 
     reset_defaults()
+    clear_contextvars()
     with pytest.raises(Exception, match="Unknown logging format requested."):  # noqa: RUF043
         setup(log_format='invalid_format')
 
@@ -56,6 +60,7 @@ def test_setup_invalid_params():
 @freeze_time("2025-12-11 12:01:02")
 def test_logging_json():
     reset_defaults()
+    clear_contextvars()
 
     with capture_output() as (out, _err):
         setup(log_format="json", testing_mode=True, logging_configs=[filter_named_logger("asyncio", ERROR)])
@@ -79,6 +84,7 @@ def test_logging_json():
 @freeze_time("2025-12-11 12:01:02")
 def test_logging_console():
     reset_defaults()
+    clear_contextvars()
 
     with capture_output() as (out, _err):
         setup(log_format="console", testing_mode=True, logging_configs=[filter_named_logger("asyncio", ERROR)])
@@ -97,6 +103,7 @@ def test_logging_console():
 @freeze_time("2025-12-11 12:01:02")
 def test_logging_file_console():
     reset_defaults()
+    clear_contextvars()
 
     with tempfile.NamedTemporaryFile() as fp, capture_output() as (_out, _err):
         setup(
@@ -124,6 +131,7 @@ def test_logging_file_console():
 @freeze_time("2025-12-11 12:01:02")
 def test_logging_file_json():
     reset_defaults()
+    clear_contextvars()
 
     with tempfile.NamedTemporaryFile() as fp, capture_output() as (_out, _err):
         setup(
