@@ -26,6 +26,9 @@ dependencies = [
 django = [
     "django>=5.0",
 ]
+aws = [
+    "aws-lambda-powertools>=3.23.0",
+]
 
 [tool.setuptools_scm]
 version_file = "src/mh_structlog/_version.py"
