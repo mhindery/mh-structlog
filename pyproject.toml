@@ -68,7 +68,7 @@ line-length = 120
 indent-width = 4
 preview = false
 required-version = ">=0.12"
-target-version = "py39"
+target-version = "py310"
 unsafe-fixes = true
 
 # Overwritten in CI/CD
