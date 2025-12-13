@@ -5,6 +5,7 @@ from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, WARN, WARNING
 import structlog
 
 from .config import filter_named_logger, setup
+from .processors import FieldDropper, FieldRenamer, FieldsAdder
 from .utils import determine_name_for_logger
 
 
@@ -28,6 +29,9 @@ __all__ = [
     "INFO",
     "WARN",
     "WARNING",
+    "FieldDropper",
+    "FieldRenamer",
+    "FieldsAdder",
     "filter_named_logger",
     "getLogger",
     "getLogger",

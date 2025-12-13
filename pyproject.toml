@@ -18,9 +18,8 @@ classifiers = [
 ]
 dependencies = [
     "orjson>=3.11.5",
-    "rich>=14.0.0",
+    "rich>=14.2.0",
     "structlog>=25.5.0",
-    "structlog-sentry>=2.2.1",
 ]
 [project.optional-dependencies]
 django = [
@@ -28,6 +27,9 @@ django = [
 ]
 aws = [
     "aws-lambda-powertools>=3.23.0",
+]
+sentry = [
+    "structlog-sentry>=2.2.1",
 ]
 
 [tool.setuptools_scm]

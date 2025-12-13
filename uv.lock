@@ -684,7 +684,6 @@ dependencies = [
     { name = "orjson", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "rich", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "structlog", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
-    { name = "structlog-sentry", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 
 [package.optional-dependencies]
@@ -694,6 +693,9 @@ aws = [
 django = [
     { name = "django", version = "5.2.9", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and sys_platform == 'darwin') or (python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')" },
     { name = "django", version = "6.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'darwin') or (python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')" },
+]
+sentry = [
+    { name = "structlog-sentry", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 
 [package.dev-dependencies]
@@ -735,11 +737,11 @@ requires-dist = [
     { name = "aws-lambda-powertools", marker = "extra == 'aws'", specifier = ">=3.23.0" },
     { name = "django", marker = "extra == 'django'", specifier = ">=5.0" },
     { name = "orjson", specifier = ">=3.11.5" },
-    { name = "rich", specifier = ">=14.0.0" },
+    { name = "rich", specifier = ">=14.2.0" },
     { name = "structlog", specifier = ">=25.5.0" },
-    { name = "structlog-sentry", specifier = ">=2.2.1" },
+    { name = "structlog-sentry", marker = "extra == 'sentry'", specifier = ">=2.2.1" },
 ]
-provides-extras = ["django", "aws"]
+provides-extras = ["django", "aws", "sentry"]
 
 [package.metadata.requires-dev]
 dev = [

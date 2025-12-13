@@ -4,7 +4,6 @@ import orjson
 import structlog
 from structlog.processors import CallsiteParameter
 from structlog.typing import EventDict
-from structlog_sentry import SentryProcessor as _SentryProcessor
 
 
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
@@ -38,6 +37,21 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
 def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
     """Render the event_dict as a json string using orjson."""
     return orjson.dumps(event_dict, default=repr).decode()
+
+
+class FieldsAdder:
+    """Add static fields to each event dict.
+
+    E.g. you can configure it to add {"service": "my-service", "env": "production"} to each log at program startup,
+    instead of having to configure them on every logger.
+    """
+
+    def __init__(self, data: dict):  # noqa: D107
+        self.data = data
+
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+        event_dict.update(self.data)
+        return event_dict
 
 
 class FieldDropper:
@@ -81,26 +95,3 @@ class CapExceptionFrames:
         if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
             event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
         return event_dict
-
-
-class SentryProcessor(_SentryProcessor):
-    """The SentryProcessor but with some of our own defaults and slight customization applied."""
-
-    def __init__(self, **kwargs):  # noqa: D107
-        # Unless otherwise specified, add all extra attributes from the log to Sentry as tags.
-        # Explicitly pass tag_keys=None to avoid this behaviour.
-        if 'tag_keys' not in kwargs:
-            kwargs['tag_keys'] = '__all__'
-        super().__init__(**kwargs)
-
-    def _get_event_and_hint(self, event_dict: EventDict) -> tuple[dict, dict]:
-        """Filter out tag_keys which are not primitive types, because Sentry gives an error otherwise."""
-
-        event, hint = super()._get_event_and_hint(event_dict)
-
-        if 'tags' in event:
-            for k in list(event['tags'].keys()):
-                if not isinstance(event['tags'][k], (bool, str, int, float, type(None))):  # noqa: UP038
-                    del event['tags'][k]
-
-        return event, hint
