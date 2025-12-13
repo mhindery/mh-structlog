@@ -167,3 +167,17 @@ setup(
 )
 
 ```
+
+## Development
+
+Install the environment:
+
+```shell
+uv sync --python-preference only-managed --frozen --all-extras --all-groups
+```
+
+Run the unittests:
+
+```shell
+uv run pytest -s --pdb --pdbcls=IPython.terminal.debugger:Pdb
+```

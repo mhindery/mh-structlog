@@ -10,13 +10,11 @@ def determine_name_for_logger():
         if 'mh_structlog' not in f[1]:
             break
 
-    # Make a name ourselves
+    # Make a name ourselves based on the path in the stackframe
     name: str = frame[1].lstrip('/').rstrip('.py').replace('/', '.')
 
     # Strip away some common 'prefixes' paths
     for location in ['var.task', 'src', 'code', 'app']:
-        if f'{location}.' in name:
-            _, _, name = name.partition(f'{location}.')
-            break
+        name = name.removeprefix(f'{location}.')
 
     return name

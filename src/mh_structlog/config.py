@@ -30,6 +30,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
     testing_mode: bool = False,  # noqa: FBT001, FBT002
     max_frames: int = 100,
     sentry_config: dict | None = None,
+    additional_processors: list | None = None,  # noqa: FBT001, FBT002
 ) -> None:
     """This method configures structlog and the standard library logging module."""
     global SELECTED_LOG_FORMAT  # noqa: PLW0603
@@ -49,6 +50,9 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         structlog.contextvars.merge_contextvars,  # add variables and bound data from global context
     ]
 
+    if additional_processors:
+        shared_processors.extend(additional_processors)
+
     if max_frames <= 0:
         raise StructlogLoggingConfigExceptionError("max_frames should be a positive integer.")
 
@@ -61,13 +65,20 @@ def setup(  # noqa: PLR0912, PLR0915, C901
     SELECTED_LOG_FORMAT = log_format
 
     if sentry_config and sentry_config.get('active', True):
+        try:
+            from . import sentry  # noqa: PLC0415
+        except ImportError as e:
+            raise StructlogLoggingConfigExceptionError(
+                "sentry_config was provided, but mh_structlog.sentry could not be imported. "
+                "Make sure this package is installed with its 'sentry' extra."
+            ) from e
         # By default, ignore our own request access logger (which is only used when you use the Django access logger from this package in your project).
         # When a request errors, there are normally other exceptions that show up in Sentry for it; adding the
         # access log at the end only results in a duplicate event.
         #
         # When you specify ignore_loggers manually, it is not ignored anymore, so you should add it yourself (when wanted).
         sentry_config.setdefault('ignore_loggers', ['mh_structlog.django.access'])
-        shared_processors.append(processors.SentryProcessor(**sentry_config))
+        shared_processors.append(sentry.SentryProcessor(**sentry_config))
     else:
         # In case logging statements add sentry_skip, but Sentry isn't configured at all, we do not want to output that key.
         shared_processors.append(processors.FieldDropper(['sentry_skip']))
