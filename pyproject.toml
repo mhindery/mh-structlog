@@ -10,7 +10,7 @@ authors = [
 description = "Some Structlog configuration and wrappers to easily use structlog."
 version = "0.0.1.dev0"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
