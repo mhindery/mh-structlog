@@ -53,6 +53,7 @@ def test_setup_with_additional_processors():
         'timestamp': '2025-12-11T12:01:02Z',
     }
 
+
 @freeze_time("2025-12-11 12:01:02")
 def test_setup_with_global_filter_level():
     reset_defaults()
