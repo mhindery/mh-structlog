@@ -21,4 +21,4 @@ def test_get_logger_default_name():
     setup(testing_mode=True)
     logger = get_logger()
 
-    assert logger.name.endswith(".tests.test_init")
+    assert logger.name == "tests.test_init"
