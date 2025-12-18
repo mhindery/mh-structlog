@@ -1,4 +1,5 @@
 import inspect
+from pathlib import Path
 
 
 def determine_name_for_logger():
@@ -14,7 +15,8 @@ def determine_name_for_logger():
     name: str = frame[1].lstrip('/').rstrip('.py').replace('/', '.')
 
     # Strip away some common 'prefixes' paths
-    for location in ['var.task', 'src', 'code', 'app']:
+    cwd = str(Path.cwd()).lstrip('/').rstrip('.py').replace('/', '.')
+    for location in [cwd, 'var.task', 'src', 'code', 'app']:
         name = name.removeprefix(f'{location}.')
 
     return name
