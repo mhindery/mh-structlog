@@ -19,8 +19,18 @@ def test_setup_twice():
     clear_contextvars()
 
     with capture_output() as (out, _err):
-        setup(log_format="json", testing_mode=False, logging_configs=[filter_named_logger("asyncio", ERROR)])
-        setup(log_format="json", testing_mode=False, logging_configs=[filter_named_logger("asyncio", ERROR)])
+        setup(
+            log_format="json",
+            testing_mode=False,
+            logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
+        )
+        setup(
+            log_format="json",
+            testing_mode=False,
+            logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
+        )
 
     data = orjson.loads(out.getvalue())
 
@@ -50,7 +60,12 @@ def test_logging_json():
     clear_contextvars()
 
     with capture_output() as (out, _err):
-        setup(log_format="json", testing_mode=True, logging_configs=[filter_named_logger("asyncio", ERROR)])
+        setup(
+            log_format="json",
+            testing_mode=True,
+            logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
+        )
         logger = get_logger("test_logger_json")
         logger.info("JSON log message", keyA="valueA", keyB=100)
 
@@ -74,7 +89,12 @@ def test_logging_console():
     clear_contextvars()
 
     with capture_output() as (out, _err):
-        setup(log_format="console", testing_mode=True, logging_configs=[filter_named_logger("asyncio", ERROR)])
+        setup(
+            log_format="console",
+            testing_mode=True,
+            logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
+        )
         logger = get_logger("test_logger_console")
         logger.info("Console log message", keyA="valueA", keyB=100)
 
@@ -99,6 +119,7 @@ def test_logging_file_console():
             log_file_format="console",
             testing_mode=True,
             logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
         )
         logger = get_logger("test_logger_file")
 
@@ -127,6 +148,7 @@ def test_logging_file_json():
             log_file_format="json",
             testing_mode=True,
             logging_configs=[filter_named_logger("asyncio", ERROR)],
+            timestamp_ms_precision=False,
         )
         logger = get_logger("test_logger_file")
 

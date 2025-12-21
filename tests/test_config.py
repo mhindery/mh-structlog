@@ -37,6 +37,7 @@ def test_setup_with_additional_processors():
             testing_mode=True,
             log_format='json',
             additional_processors=[FieldsAdder(data={"custom_field": "custom_value"})],
+            timestamp_ms_precision=False,
         )
         mh_structlog.get_logger().info("Test log message", key1="value1", key2=42)
 
@@ -78,7 +79,7 @@ def test_setup_with_source_location():
     clear_contextvars()
 
     with capture_output() as (out, _err):
-        setup(testing_mode=True, log_format='json', include_source_location=True)
+        setup(testing_mode=True, log_format='json', include_source_location=True, timestamp_ms_precision=False)
         mh_structlog.get_logger().info("Test log message", key1="value1", key2=42)
 
     data = orjson.loads(out.getvalue())
