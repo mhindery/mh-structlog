@@ -1,4 +1,10 @@
-from mh_structlog.processors import FieldDropper, FieldRenamer, FieldsAdder, add_flattened_extra
+from mh_structlog.processors import (
+    FieldDropper,
+    FieldRenamer,
+    FieldsAdder,
+    add_flattened_extra,
+    cap_timestamp_to_ms_precision,
+)
 
 
 def test_add_flattened_extra_from_structlog_event_dict():
@@ -7,6 +13,14 @@ def test_add_flattened_extra_from_structlog_event_dict():
     result = add_flattened_extra(None, None, event_dict)
 
     assert result == {"_from_structlog": True, "event": "test event", "user_id": 123, "session_id": "abc"}
+
+
+def test_cap_timestamp_to_ms_precision():
+    event_dict = {"event": "test event", "timestamp": "2024-06-01T12:34:56.789123Z"}
+
+    result = cap_timestamp_to_ms_precision(None, None, event_dict)
+
+    assert result == {"event": "test event", "timestamp": "2024-06-01T12:34:56.789Z"}
 
 
 def test_add_flattened_extra_from_logging_record():

@@ -95,3 +95,10 @@ class CapExceptionFrames:
         if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
             event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
         return event_dict
+
+
+def cap_timestamp_to_ms_precision(_, __, event_dict: dict) -> dict:  # noqa: ANN001
+    """Cap the timestamp to millisecond precision, dropping the microseconds part."""
+    if ts := event_dict.get("timestamp"):
+        event_dict['timestamp'] = ts[:-4] + 'Z'
+    return event_dict
