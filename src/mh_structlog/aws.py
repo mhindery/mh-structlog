@@ -21,8 +21,6 @@ def bind_lambda_context(lambda_context: LambdaContext) -> None:
     """
     global is_cold_start  # noqa: PLW0603
 
-    print(is_cold_start)
-
     if lambda_context:
         structlog.contextvars.clear_contextvars()
 
