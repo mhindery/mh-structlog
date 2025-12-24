@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 
 import orjson
 import structlog
@@ -78,6 +79,20 @@ class FieldRenamer:
         if self.enable and self.name_from in event_dict:
             event_dict[self.name_to] = event_dict.pop(self.name_from)
 
+        return event_dict
+
+
+class FieldTransformer:
+    """Transform a field in the event dict using a provided function."""
+
+    def __init__(self, enable: bool, field_name: str, transform_function: Callable):  # noqa: D107
+        self.enable = enable
+        self.field_name = field_name
+        self.transform_function = transform_function
+
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+        if self.enable and self.field_name in event_dict:
+            event_dict[self.field_name] = self.transform_function(event_dict[self.field_name])
         return event_dict
 
 

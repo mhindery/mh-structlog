@@ -2,6 +2,7 @@ from mh_structlog.processors import (
     FieldDropper,
     FieldRenamer,
     FieldsAdder,
+    FieldTransformer,
     add_flattened_extra,
     cap_timestamp_to_ms_precision,
 )
@@ -59,3 +60,10 @@ def test_field_adder():
     event_dict = {"event": "startup"}
     result = adder(None, None, event_dict)
     assert result == {"event": "startup", "service": "my-service", "env": "production"}
+
+
+def test_field_transformer_enabled():
+    transformer = FieldTransformer(enable=True, field_name="level", transform_function=lambda v: v.upper())
+    event_dict = {"event": "system alert", "level": "warning"}
+    result = transformer(None, None, event_dict)
+    assert result == {"event": "system alert", "level": "WARNING"}
