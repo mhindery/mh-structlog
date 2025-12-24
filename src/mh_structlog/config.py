@@ -22,7 +22,7 @@ class StructlogLoggingConfigExceptionError(Exception):
 
 
 def setup(  # noqa: PLR0912, PLR0915, C901
-    log_format: Literal["console", "json", "gcp_json"] | None = None,
+    log_format: Literal["console", "json", "gcp_json", "aws_json"] | None = None,
     logging_configs: list[dict] | None = None,
     include_source_location: bool = False,  # noqa: FBT001, FBT002
     global_filter_level: int | None = None,
@@ -64,7 +64,14 @@ def setup(  # noqa: PLR0912, PLR0915, C901
     # Configure stdout formatter
     if log_format is None:
         log_format = "console" if sys.stdout.isatty() else "json"
-    if log_format not in {"console", "json", "gcp_json"}:
+
+        # Determine a more specific log format based on environment if possible.
+        if log_format == "json":
+            if os.environ.get("GCP_PROJECT"):
+                log_format = "gcp_json"
+            elif os.environ.get("AWS_REGION"):
+                log_format = "aws_json"
+    if log_format not in {"console", "json", "gcp_json", "aws_json"}:
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
     SELECTED_LOG_FORMAT = log_format
@@ -90,7 +97,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
 
     if log_format == "console":
         selected_formatter = "mh_structlog_colored"
-    elif log_format in {"json", "gcp_json"}:
+    elif log_format in {"json", "gcp_json", "aws_json"}:
         shared_processors.extend(
             [structlog.processors.dict_tracebacks, processors.CapExceptionFrames(max_frames=2 * max_frames)]
         )
@@ -199,6 +206,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
                     processors.FieldRenamer(
                         log_format == 'gcp_json', 'level', 'severity'
                     ),  # rename the level field for GCP
+                    processors.FieldTransformer(log_format == 'aws_json', 'level', lambda v: v.upper()),
                     processors.render_orjson,
                 ],
                 "foreign_pre_chain": shared_processors,

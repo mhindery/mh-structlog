@@ -3,10 +3,12 @@ from unittest.mock import Mock
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from structlog.contextvars import clear_contextvars, get_contextvars
 
-from mh_structlog.aws import bind_lambda_context
+from mh_structlog.aws import _reset_cold_start_flag, bind_lambda_context
 
 
 def test_bind_lambda_context_non_empty():
+    _reset_cold_start_flag()
+
     clear_contextvars()
 
     mock_lambda_context = Mock(spec=LambdaContext)
@@ -24,6 +26,7 @@ def test_bind_lambda_context_non_empty():
         'function_memory_size': 128,
         'function_name': 'test_function',
         'function_request_id': '1234-5678',
+        'cold_start': True,
     }
 
 
@@ -35,3 +38,23 @@ def test_bind_lambda_context_empty():
     bind_lambda_context(None)
 
     assert get_contextvars() == {}
+
+
+def test_bind_lambda_context_cold_start():
+    _reset_cold_start_flag()
+
+    clear_contextvars()
+
+    mock_lambda_context = Mock(spec=LambdaContext)
+    mock_lambda_context.function_name = "test_function"
+    mock_lambda_context.memory_limit_in_mb = 128
+    mock_lambda_context.invoked_function_arn = "arn:aws:lambda:region:account-id:function:test_function"
+    mock_lambda_context.aws_request_id = "1234-5678"
+
+    assert get_contextvars() == {}
+
+    bind_lambda_context(mock_lambda_context)
+    assert get_contextvars()['cold_start']
+
+    bind_lambda_context(mock_lambda_context)
+    assert not get_contextvars()['cold_start']
