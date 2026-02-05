@@ -21,7 +21,7 @@ def bind_lambda_context(lambda_context: LambdaContext) -> None:
     """
     global is_cold_start  # noqa: PLW0603
 
-    if lambda_context:
+    if lambda_context and getattr(lambda_context, 'function_name', None):
         structlog.contextvars.clear_contextvars()
 
         if os.getenv('AWS_LAMBDA_INITIALIZATION_TYPE', '') == "provisioned-concurrency":
