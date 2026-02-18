@@ -112,32 +112,33 @@ def setup(  # noqa: PLR0912, PLR0915, C901
 
     wrapper_class = structlog.stdlib.BoundLogger
 
-    env_log_level_str = os.environ.get('LOG_LEVEL', '').upper()
-    env_log_level_constant = logging._nameToLevel.get(env_log_level_str)  # noqa: SLF001
+    env_log_level_constant = None
+    if env_log_level_str := os.environ.get('LOG_LEVEL', '').upper():
+        env_log_level_constant = logging._nameToLevel.get(env_log_level_str)  # noqa: SLF001
 
-    if env_log_level_str and not env_log_level_constant:
-        raise StructlogLoggingConfigExceptionError(
-            f"LOG_LEVEL environment variable has unrecognized value: {env_log_level_str}"
+        if not env_log_level_constant:
+            raise StructlogLoggingConfigExceptionError(
+                f"LOG_LEVEL environment variable has unrecognized value: {env_log_level_str}"
+            )
+
+    if global_filter_level is not None and env_log_level_constant and env_log_level_constant != global_filter_level:
+        logging.getLogger('mh_structlog').warning(
+            'Both global_filter_level (%s, %s) and LOG_LEVEL environment variable (%s, %s) are set, but they differ. global_filter_level takes precedence.',
+            global_filter_level,
+            logging.getLevelName(global_filter_level),
+            env_log_level_constant,
+            logging.getLevelName(env_log_level_constant),
         )
+
+    if global_filter_level is None and env_log_level_constant is not None:
+        global_filter_level = env_log_level_constant
 
     if global_filter_level is not None:
         if global_filter_level not in logging._nameToLevel.values():  # noqa: SLF001
             raise StructlogLoggingConfigExceptionError(
                 f"global_filter_level has unrecognized value: {global_filter_level}"
             )
-        if env_log_level_constant and env_log_level_constant != global_filter_level:
-            from logging import getLogger  # noqa: PLC0415
-
-            getLogger('mh_structlog').warning(
-                'Both global_filter_level (%s, %s) and LOG_LEVEL environment variable (%s, %s) are set, but they differ. global_filter_level takes precedence.',
-                global_filter_level,
-                logging.getLevelName(global_filter_level),
-                env_log_level_constant,
-                logging.getLevelName(env_log_level_constant),
-            )
         wrapper_class = structlog.make_filtering_bound_logger(global_filter_level)
-    elif env_log_level_constant:
-        wrapper_class = structlog.make_filtering_bound_logger(env_log_level_constant)  # noqa: SLF001
 
     # Structlog configuration
     structlog.configure(
