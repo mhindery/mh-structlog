@@ -1,6 +1,8 @@
 import inspect
 from pathlib import Path
 
+import structlog
+
 
 def determine_name_for_logger():
     """Return a name for a logger depending on the stackframe."""
@@ -19,4 +21,16 @@ def determine_name_for_logger():
     for location in [cwd, 'var.task', 'src', 'code', 'app']:
         name = name.removeprefix(f'{location}.')
 
-    return name
+    return name.strip('.')
+
+
+def getLogger(name: str | None = None):  # noqa: ANN201, N802
+    """Return a named logger."""
+    if name is None:
+        name = determine_name_for_logger()
+    return structlog.get_logger(name)
+
+
+def get_logger(name: str | None = None):  # noqa: ANN201
+    """Return a named logger."""
+    return getLogger(name)

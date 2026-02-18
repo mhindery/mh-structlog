@@ -13,11 +13,11 @@ def _reset_cold_start_flag() -> None:
     is_cold_start = True
 
 
-def bind_lambda_context(lambda_context: LambdaContext) -> None:
+def bind_lambda_context(lambda_context: LambdaContext | None = None) -> None:
     """Bind AWS Lambda context information to the structlog context variables, so log entries contain Lambda function metadata.
 
     Args:
-        lambda_context (LambdaContext): The AWS Lambda context object.
+        lambda_context (LambdaContext | None): The AWS Lambda context object.
     """
     global is_cold_start  # noqa: PLW0603
 
