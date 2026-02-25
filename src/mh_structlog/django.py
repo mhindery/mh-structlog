@@ -14,7 +14,12 @@ logger = structlog.getLogger("mh_structlog.django.access")
 def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: int) -> dict:
     """Extracts fields to log from the request object."""
 
-    fields_to_log = {'latency_ms': latency_ms, 'method': request.method, 'status': response.status_code}
+    fields_to_log = {
+        'latency_ms': latency_ms,
+        'method': request.method,
+        'status': response.status_code,
+        'referrer': request.headers.get('Referer', ''),
+    }
 
     if SELECTED_LOG_FORMAT == 'gcp_json':
         fields_to_log['httpRequest'] = {
