@@ -23,4 +23,4 @@ def test_get_fields_to_log_standard_format():
 
     fields = get_fields_to_log(request, response, latency_ms)
 
-    assert fields == {"latency_ms": 150, "method": "GET", "status": 200}
+    assert fields == {"latency_ms": 150, "method": "GET", "status": 200, "referrer": ''}
