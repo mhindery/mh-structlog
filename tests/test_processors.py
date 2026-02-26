@@ -1,8 +1,14 @@
+from collections.abc import Mapping
+from dataclasses import dataclass
+
+from pydantic import BaseModel
+
 from mh_structlog.processors import (
     FieldDropper,
     FieldRenamer,
     FieldsAdder,
     FieldTransformer,
+    ObjectToDictTransformer,
     add_flattened_extra,
     cap_timestamp_to_ms_precision,
 )
@@ -67,3 +73,43 @@ def test_field_transformer_enabled():
     event_dict = {"event": "system alert", "level": "warning"}
     result = transformer(None, None, event_dict)
     assert result == {"event": "system alert", "level": "WARNING"}
+
+
+def test_object_to_dict_transformer_basemodel():
+    class MyModel(BaseModel):
+        id: int
+        name: str
+
+    obj = MyModel(id=123, name="alice")
+
+    transformer = ObjectToDictTransformer()
+    event_dict = {"event": "user data", "obj": obj}
+    result = transformer(None, None, event_dict)
+    assert result == {"event": "user data", "obj": {"id": 123, "name": "alice"}}
+
+
+def test_object_to_dict_transformer_mapping():
+    class MyModel(dict, Mapping):
+        id: int
+        name: str
+
+    obj = MyModel(id=123, name="alice")
+
+    transformer = ObjectToDictTransformer()
+    event_dict = {"event": "user data", "obj": obj}
+    result = transformer(None, None, event_dict)
+    assert result == {"event": "user data", "obj": {"id": 123, "name": "alice"}}
+
+
+def test_object_to_dict_transformer_dataclass():
+    @dataclass
+    class MyModel:
+        id: int
+        name: str
+
+    obj = MyModel(id=123, name="alice")
+
+    transformer = ObjectToDictTransformer()
+    event_dict = {"event": "user data", "obj": obj}
+    result = transformer(None, None, event_dict)
+    assert result == {"event": "user data", "obj": {"id": 123, "name": "alice"}}

@@ -33,6 +33,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
     sentry_config: dict | None = None,
     additional_processors: list | None = None,  # noqa: FBT001, FBT002
     timestamp_ms_precision: bool | None = True,
+    dump_objects_as_dict: bool | None = True,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
     global SELECTED_LOG_FORMAT  # noqa: PLW0603
@@ -75,6 +76,9 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         raise StructlogLoggingConfigExceptionError("Unknown logging format requested.")
 
     SELECTED_LOG_FORMAT = log_format
+
+    if dump_objects_as_dict and log_format in {"json", "gcp_json", "aws_json"}:
+        shared_processors.append(processors.ObjectToDictTransformer())
 
     if sentry_config and sentry_config.get('active', True):
         try:

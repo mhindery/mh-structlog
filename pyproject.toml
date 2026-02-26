@@ -45,6 +45,7 @@ tests = [
     "coverage>=7.13.0",
     "django>=5",
     "freezegun>=1.5.5",
+    "pydantic>=2.12.5",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-django>=4.11.1",
