@@ -1,11 +1,17 @@
+import dataclasses
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 import orjson
 import structlog
 from structlog.processors import CallsiteParameter
 from structlog.typing import EventDict
 
+
+try:
+    from pydantic import BaseModel
+except ImportError:
+    BaseModel = None
 
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
@@ -79,6 +85,23 @@ class FieldRenamer:
         if self.enable and self.name_from in event_dict:
             event_dict[self.name_to] = event_dict.pop(self.name_from)
 
+        return event_dict
+
+
+class ObjectToDictTransformer:
+    """Support dumping some specific objects as dicts, so they are better serialized as dicts instead of using their default string representation."""
+
+    def __init__(self, *args, **kwargs):  # noqa: D107
+        pass
+
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+        for key, value in list(event_dict.items()):
+            if BaseModel is not None and isinstance(value, BaseModel):
+                event_dict[key] = value.model_dump()
+            elif isinstance(value, Mapping):
+                event_dict[key] = dict(value)
+            elif dataclasses.is_dataclass(value):
+                event_dict[key] = dataclasses.asdict(value)
         return event_dict
 
 
