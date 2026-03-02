@@ -3,6 +3,7 @@ import time
 import structlog
 from asgiref.sync import iscoroutinefunction
 from django.http import HttpRequest, HttpResponse
+from django.http.response import HttpResponseRedirectBase
 from django.utils.decorators import sync_and_async_middleware
 
 from mh_structlog.config import SELECTED_LOG_FORMAT  # noqa: PLC0415
@@ -20,6 +21,9 @@ def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: 
         'status': response.status_code,
         'referrer': request.headers.get('Referer', ''),
     }
+
+    if isinstance(response, HttpResponseRedirectBase):
+        fields_to_log['redirect_url'] = response['Location']
 
     if SELECTED_LOG_FORMAT == 'gcp_json':
         fields_to_log['httpRequest'] = {
