@@ -47,14 +47,13 @@ jobs:
         run: |
           uv run pytest --force-sugar
 
-
   build:
     name: >-
       Build the Python package
     needs:
       - static-analysis
       - tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
         with:
@@ -63,10 +62,13 @@ jobs:
         with:
           enable-cache: true
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.2.0
+        uses: gittools/actions/gitversion/setup@v4.3.3
       - name: Determine Version
         id: version_step # step id used as a reference for output values
-        uses: gittools/actions/gitversion/execute@v4.2.0
+        uses: gittools/actions/gitversion/execute@v4.3.3
+        with:
+          overrideConfig: |
+            mode: MainLine
       - name: Build the package
         run: |
           if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
@@ -82,17 +84,24 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-
+      - name: Create Tag
+        run: |
+          if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git tag -a "$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch" -m "Release $GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
+            git push origin "$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
+          fi
 
   publish-to-pypi:
     name: Upload release to PyPI
-    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags'))
+    if: github.ref == 'refs/heads/main'
     needs:
       - build
     runs-on: ubuntu-slim
     environment:
       name: pypi
-      url: https://pypi.org/p/mh-structlog
+      url: https://pypi.org/project/mh-structlog/
     permissions:
       id-token: write
 
