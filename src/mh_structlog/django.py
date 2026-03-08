@@ -6,7 +6,7 @@ from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseRedirectBase
 from django.utils.decorators import sync_and_async_middleware
 
-from mh_structlog.config import SELECTED_LOG_FORMAT  # noqa: PLC0415
+from mh_structlog import config  # noqa: PLC0415
 
 
 logger = structlog.getLogger("mh_structlog.django.access")
@@ -26,7 +26,7 @@ def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: 
     if isinstance(response, HttpResponseRedirectBase):
         fields_to_log['redirect_url'] = response['Location']
 
-    if SELECTED_LOG_FORMAT == 'gcp_json':
+    if config.SELECTED_LOG_FORMAT == 'gcp_json':
         fields_to_log['httpRequest'] = {
             'requestMethod': request.method,
             'requestUrl': request.build_absolute_uri(),

@@ -5,6 +5,7 @@ import filelock
 import pytest
 from django.conf import settings
 from django.test.utils import setup_test_environment
+from structlog.contextvars import clear_contextvars
 
 
 @pytest.fixture(scope='session')
@@ -24,5 +25,10 @@ def serial(lock):
 
 @pytest.fixture(scope='session')
 def django_settings():
-    settings.configure()
+    settings.configure(SECRET_KEY='1234', ROOT_URLCONF='tests.root_urlconf')  # noqa: S106
     setup_test_environment(debug=True)
+
+
+@pytest.fixture(autouse=True)
+def clear_structlog_contextvars():
+    clear_contextvars()
