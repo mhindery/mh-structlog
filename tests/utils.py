@@ -1,11 +1,10 @@
 from collections.abc import Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from io import StringIO
-from typing import TextIO
 
 
 @contextmanager
-def capture_output() -> Generator[tuple[TextIO, TextIO]]:
+def capture_output() -> Generator[tuple[StringIO, StringIO]]:
     """
     Capture both stdout and stderr into StringIO buffers.
 

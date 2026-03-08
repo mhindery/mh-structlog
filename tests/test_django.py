@@ -11,8 +11,8 @@ def test_get_fields_to_log_standard_format():
 
     request = HttpRequest()
     request.method = "GET"
-    request.build_absolute_uri = lambda: "http://testserver/test-path"
-    request.headers = {"User-Agent": "TestAgent"}
+    request.build_absolute_uri = lambda: "http://testserver/test-path"  # ty:ignore[invalid-assignment]
+    request.META = {"HTTP_USER_AGENT": "TestAgent"}
 
     class Response:
         status_code = 200
@@ -21,6 +21,6 @@ def test_get_fields_to_log_standard_format():
     response = Response()
     latency_ms = 150
 
-    fields = get_fields_to_log(request, response, latency_ms)
+    fields = get_fields_to_log(request, response, latency_ms)  # ty:ignore[invalid-argument-type]
 
     assert fields == {"latency_ms": 150, "method": "GET", "status": 200, "referrer": ''}

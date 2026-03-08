@@ -51,7 +51,7 @@ def test_setup_invalid_params():
     reset_defaults()
     clear_contextvars()
     with pytest.raises(Exception, match="Unknown logging format requested."):  # noqa: RUF043
-        setup(log_format='invalid_format')
+        setup(log_format='invalid_format')  # ty:ignore[invalid-argument-type]
 
 
 @freeze_time("2025-12-11 12:01:02")

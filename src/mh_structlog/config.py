@@ -5,13 +5,17 @@ import logging.config
 import os
 import sys
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import structlog
 from structlog.dev import RichTracebackFormatter
 from structlog.processors import CallsiteParameter
 
 from . import processors
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 SELECTED_LOG_FORMAT = 'console'
@@ -46,7 +50,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         getLogger('mh_structlog').warning('logging was already configured, so I return and do nothing.')
         return
 
-    shared_processors = [
+    shared_processors: list[Callable] = [
         structlog.stdlib.add_logger_name,  # add the logger name
         structlog.stdlib.add_log_level,  # add the log level as textual representation
         structlog.processors.TimeStamper(fmt="iso", utc=True),  # add a timestamp

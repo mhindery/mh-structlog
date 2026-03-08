@@ -27,6 +27,9 @@ jobs:
       - name: Lint with ruff
         run: |
           uv run ruff check --no-fix
+      - name: Lint with ty
+        run: |
+          uv run ty check
 
   tests:
     runs-on: ubuntu-slim
