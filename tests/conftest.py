@@ -1,5 +1,4 @@
 import contextlib
-import os
 import pathlib
 
 import filelock
