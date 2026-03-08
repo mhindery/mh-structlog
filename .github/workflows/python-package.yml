@@ -83,7 +83,7 @@ jobs:
           fi
 
           uv version $python_package_version
-          uv build --clear
+          uv build --clear --no-sources
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
