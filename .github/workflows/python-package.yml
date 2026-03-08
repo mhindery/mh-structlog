@@ -48,7 +48,7 @@ jobs:
         run: uv sync --frozen --compile-bytecode --all-groups --all-extras
       - name: Run tests with pytest
         run: |
-          uv run pytest --force-sugar
+          uv run pytest
 
   build:
     name: >-
