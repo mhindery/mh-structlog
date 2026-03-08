@@ -76,7 +76,7 @@ jobs:
             mode: MainLine
       - name: Build the package
         run: |
-          if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
+          if [[ "$GitVersion_BranchName" == "main" ]]; then
             python_package_version="$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
           else
             python_package_version="$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch.dev+$GitVersion_BranchName.$GitVersion_CommitsSinceVersionSource.$GitVersion_ShortSha"
@@ -91,7 +91,7 @@ jobs:
           path: dist/
       - name: Create Tag
         run: |
-          if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
+          if [[ "$GitVersion_BranchName" == "main" ]]; then
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git tag -a "$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch" -m "Release $GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
