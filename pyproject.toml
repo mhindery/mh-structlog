@@ -40,10 +40,12 @@ dev = [
     "ipdb>=0.13.13",
     "ipython>=8.38.0",
     "ruff>=0.15.1",
+    "ty>=0.0.21",
 ]
 tests = [
-    "coverage>=7.13.0",
+    "coverage>=7.13.4",
     "django>=5",
+    "filelock>=3.25.0",
     "freezegun>=1.5.5",
     "pydantic>=2.12.5",
     "pytest>=9.0.2",
@@ -52,6 +54,7 @@ tests = [
     "pytest-env>=1.2.0",
     "pytest-randomly>=4.0.1",
     "pytest-sugar>=1.1.1",
+    "pytest-xdist>=3.6.1",
 ]
 
 [tool.uv]

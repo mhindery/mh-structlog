@@ -11,7 +11,7 @@ from structlog.typing import EventDict
 try:
     from pydantic import BaseModel
 except ImportError:
-    BaseModel = None
+    BaseModel = None  # ty:ignore[invalid-assignment]
 
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())

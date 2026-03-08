@@ -27,6 +27,9 @@ jobs:
       - name: Lint with ruff
         run: |
           uv run ruff check --no-fix
+      - name: Lint with ty
+        run: |
+          uv run ty check
 
   tests:
     runs-on: ubuntu-slim
@@ -44,9 +47,10 @@ jobs:
       - name: Install the project
         run: uv sync --frozen --compile-bytecode --all-groups --all-extras
       - name: Run tests with pytest
+        env:
+          PYTEST_ADDOPTS: "--color=yes"
         run: |
-          uv run pytest --force-sugar
-
+          uv run pytest
 
   build:
     name: >-
@@ -63,10 +67,13 @@ jobs:
         with:
           enable-cache: true
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.2.0
+        uses: gittools/actions/gitversion/setup@v4.3.3
       - name: Determine Version
         id: version_step # step id used as a reference for output values
-        uses: gittools/actions/gitversion/execute@v4.2.0
+        uses: gittools/actions/gitversion/execute@v4.3.3
+        with:
+          overrideConfig: |
+            mode: MainLine
       - name: Build the package
         run: |
           if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
@@ -76,23 +83,30 @@ jobs:
           fi
 
           uv version $python_package_version
-          uv build --clear
+          uv build --clear --no-sources
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
-
+      - name: Create Tag
+        run: |
+          if [[ "$GitVersion_CommitsSinceVersionSource" == "0" ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git tag -a "$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch" -m "Release $GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
+            git push origin "$GitVersion_Major.$GitVersion_Minor.$GitVersion_Patch"
+          fi
 
   publish-to-pypi:
     name: Upload release to PyPI
-    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags'))
+    if: github.ref == 'refs/heads/main'
     needs:
       - build
     runs-on: ubuntu-slim
     environment:
       name: pypi
-      url: https://pypi.org/p/mh-structlog
+      url: https://pypi.org/project/mh-structlog/
     permissions:
       id-token: write
 
