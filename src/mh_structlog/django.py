@@ -20,6 +20,7 @@ def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: 
         'method': request.method,
         'status': response.status_code,
         'referrer': request.headers.get('Referer', ''),
+        'request_user_id': getattr(request.user, 'id', None) if hasattr(request, 'user') else None,
     }
 
     if isinstance(response, HttpResponseRedirectBase):

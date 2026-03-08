@@ -45,6 +45,7 @@ dev = [
 tests = [
     "coverage>=7.13.4",
     "django>=5",
+    "filelock>=3.25.0",
     "freezegun>=1.5.5",
     "pydantic>=2.12.5",
     "pytest>=9.0.2",
