@@ -47,6 +47,8 @@ jobs:
       - name: Install the project
         run: uv sync --frozen --compile-bytecode --all-groups --all-extras
       - name: Run tests with pytest
+        env:
+          PYTEST_ADDOPTS: "--color=yes"
         run: |
           uv run pytest
 
