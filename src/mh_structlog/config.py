@@ -68,7 +68,17 @@ def setup(  # noqa: PLR0912, PLR0915, C901
 
     # Configure stdout formatter
     if log_format is None:
-        log_format = "console" if sys.stdout.isatty() else "json"
+        # Take the log format from the environment variable if it is set to a valid value, otherwise determine it based on whether we are in a terminal or not.
+        if log_format_env := os.environ.get("LOG_FORMAT"):
+            if log_format_env in {"console", "json", "gcp_json", "aws_json"}:
+                log_format = log_format_env  # ty:ignore[invalid-assignment]
+            else:
+                logging.getLogger('mh_structlog').warning(
+                    'LOG_FORMAT environment variable is set to %s, but that is not an accepted value, so it is ignored.',
+                    log_format_env,
+                )
+        if not log_format:
+            log_format = "console" if sys.stdout.isatty() else "json"
 
         # Determine a more specific log format based on environment if possible.
         if log_format == "json":
