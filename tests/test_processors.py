@@ -108,7 +108,7 @@ def test_object_to_dict_transformer_simplelazyobject__evaluated():
 
     # Force evaluation of the SimpleLazyObject
     _ = obj._setup()
-    assert obj._wrapped is not empty  # ruff:ignore[private-member-access]
+    assert obj._wrapped is not empty
 
     transformer = ObjectToDictTransformer()
     event_dict = {"event": "user data", "obj": obj}
