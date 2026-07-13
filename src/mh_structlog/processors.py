@@ -13,6 +13,11 @@ try:
 except ImportError:
     BaseModel = None  # ty:ignore[invalid-assignment]
 
+try:
+    from django.utils.functional import SimpleLazyObject, empty  # ty:ignore[unresolved-import]
+except ImportError:
+    SimpleLazyObject = None  # ty:ignore[invalid-assignment]
+
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
 
@@ -96,7 +101,12 @@ class ObjectToDictTransformer:
 
     def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
         for key, value in list(event_dict.items()):
-            if BaseModel is not None and isinstance(value, BaseModel):
+            if SimpleLazyObject is not None and isinstance(value, SimpleLazyObject):
+                # In case we have a wrapper but it is already evaluated, we want to use the wrapped value instead of the wrapper.
+                # If it is not evaluated, we don't want to evaluate it ourselves but keep it lazy-wrapped, so we just leave it as is.
+                if value._wrapped is not empty:  # ruff:ignore[private-member-access]
+                    event_dict[key] = value._wrapped  # ruff:ignore[private-member-access]
+            elif BaseModel is not None and isinstance(value, BaseModel):
                 event_dict[key] = value.model_dump()
             elif isinstance(value, Mapping):
                 event_dict[key] = dict(value)

@@ -2,6 +2,7 @@ import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from django.utils.functional import SimpleLazyObject, empty
 from pydantic import BaseModel
 
 from mh_structlog.processors import (
@@ -77,6 +78,51 @@ def test_field_transformer_enabled():
     event_dict = {"event": "system alert", "level": "warning"}
     result = transformer(test_logger, '', event_dict)
     assert result == {"event": "system alert", "level": "WARNING"}
+
+
+def test_object_to_dict_transformer_simplelazyobject__not_evaluated():
+    def lazy_function():
+        return {"id": 123, "name": "alice"}
+
+    obj = SimpleLazyObject(lambda: lazy_function())  # ruff:ignore[unnecessary-lambda]
+
+    transformer = ObjectToDictTransformer()
+    event_dict = {"event": "user data", "obj": obj}
+    result = transformer(test_logger, '', event_dict)
+
+    # Without evaluation, the object should still be a SimpleLazyObject
+    assert isinstance(result['obj'], SimpleLazyObject)
+
+    # Verify it is not evaluated yet
+    assert result['obj']._wrapped is empty  # ruff:ignore[private-member-access]
+
+    # After evaluation, it should be converted to a dict
+    assert result == {"event": "user data", "obj": {"id": 123, "name": "alice"}}
+
+
+def test_object_to_dict_transformer_simplelazyobject__evaluated():
+    def lazy_function():
+        return {"id": 123, "name": "alice"}
+
+    obj = SimpleLazyObject(lambda: lazy_function())  # ruff:ignore[unnecessary-lambda]
+
+    # Force evaluation of the SimpleLazyObject
+    _ = obj._setup()
+    assert obj._wrapped is not empty  # ruff:ignore[private-member-access]
+
+    transformer = ObjectToDictTransformer()
+    event_dict = {"event": "user data", "obj": obj}
+    result = transformer(test_logger, '', event_dict)
+
+    # After evaluation, the object should be converted to a dict
+    assert isinstance(result['obj'], dict)
+
+    # Verify that the SimpleLazyObject has been evaluated
+    # The SimpleLazyObject should no longer be present; it should be a dict
+    assert not isinstance(result['obj'], SimpleLazyObject)
+
+    # After evaluation, it should be converted to a dict
+    assert result == {"event": "user data", "obj": {"id": 123, "name": "alice"}}
 
 
 def test_object_to_dict_transformer_basemodel():
