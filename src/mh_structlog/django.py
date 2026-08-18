@@ -16,7 +16,7 @@ async def a_get_fields_to_log(request: HttpRequest, response: HttpResponse, late
     """Extracts fields to log from the request object."""
 
     request_user_id = None
-    if (user := await request.auser()).is_authenticated:
+    if (user := await request.auser()).is_authenticated:  # ty: ignore[unresolved-attribute]
         request_user_id = user.id
 
     fields_to_log = {
@@ -47,8 +47,8 @@ def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: 
     """Extracts fields to log from the request object."""
 
     request_user_id = None
-    if request.user.is_authenticated:
-        request_user_id = request.user.id
+    if request.user.is_authenticated:  # ty: ignore[unresolved-attribute]
+        request_user_id = request.user.id  # ty: ignore[unresolved-attribute]
 
     fields_to_log = {
         'latency_ms': latency_ms,

@@ -71,7 +71,7 @@ def setup(  # ruff: ignore[too-many-branches, too-many-statements, complex-struc
         # Take the log format from the environment variable if it is set to a valid value, otherwise determine it based on whether we are in a terminal or not.
         if log_format_env := os.environ.get("LOG_FORMAT"):
             if log_format_env in {"console", "json", "gcp_json", "aws_json"}:
-                log_format = log_format_env  # ty:ignore[invalid-assignment]
+                log_format = log_format_env
             else:
                 logging.getLogger('mh_structlog').warning(
                     'LOG_FORMAT environment variable is set to %s, but that is not an accepted value, so it is ignored.',
