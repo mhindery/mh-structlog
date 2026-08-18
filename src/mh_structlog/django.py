@@ -47,7 +47,7 @@ def get_fields_to_log(request: HttpRequest, response: HttpResponse, latency_ms: 
     """Extracts fields to log from the request object."""
 
     request_user_id = None
-    if request.user.is_authenticated:  # ty: ignore[unresolved-attribute]
+    if hasattr(request, 'user') and request.user.is_authenticated:  # ty: ignore[unresolved-attribute]
         request_user_id = request.user.id  # ty: ignore[unresolved-attribute]
 
     fields_to_log = {
