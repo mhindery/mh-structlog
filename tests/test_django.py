@@ -14,7 +14,7 @@ def test_get_fields_to_log_json_format(django_settings, serial):
 
     request = HttpRequest()
     request.method = "GET"
-    request.build_absolute_uri = lambda: "http://testserver/test-path"  # ty:ignore[invalid-assignment]
+    request.build_absolute_uri = lambda: "http://testserver/test-path"
     request.META = {"HTTP_USER_AGENT": "TestAgent"}
 
     class Response:
@@ -24,7 +24,7 @@ def test_get_fields_to_log_json_format(django_settings, serial):
     response = Response()
     latency_ms = 150
 
-    fields = get_fields_to_log(request, response, latency_ms)  # ty:ignore[invalid-argument-type]
+    fields = get_fields_to_log(request, response, latency_ms)
 
     assert fields == {"latency_ms": 150, "method": "GET", "status": 200, "referrer": '', 'request_user_id': None}
 
@@ -34,7 +34,7 @@ def test_get_fields_to_log_gcp_json_format(django_settings, serial):
 
     request = HttpRequest()
     request.method = "GET"
-    request.build_absolute_uri = lambda: "http://testserver/test-path"  # ty:ignore[invalid-assignment]
+    request.build_absolute_uri = lambda: "http://testserver/test-path"
     request.META = {"HTTP_USER_AGENT": "TestAgent"}
 
     class Response:
@@ -44,7 +44,7 @@ def test_get_fields_to_log_gcp_json_format(django_settings, serial):
     response = Response()
     latency_ms = 150
 
-    fields = get_fields_to_log(request, response, latency_ms)  # ty:ignore[invalid-argument-type]
+    fields = get_fields_to_log(request, response, latency_ms)
 
     assert fields == {
         "latency_ms": 150,
@@ -67,14 +67,14 @@ def test_get_fields_to_log_standard_format_with_user(django_settings, serial):
     setup(log_format='json', testing_mode=True)
 
     class User:
-        def __init__(self, id):  # noqa: A002
+        def __init__(self, id):  # ruff: ignore[builtin-argument-shadowing]
             self.id = id
 
     request = HttpRequest()
     request.method = "GET"
-    request.build_absolute_uri = lambda: "http://testserver/test-path"  # ty:ignore[invalid-assignment]
+    request.build_absolute_uri = lambda: "http://testserver/test-path"
     request.META = {"HTTP_USER_AGENT": "TestAgent"}
-    request.user = User(id=42)  # ty:ignore[unresolved-attribute]
+    request.user = User(id=42)
 
     class Response:
         status_code = 200
@@ -83,7 +83,7 @@ def test_get_fields_to_log_standard_format_with_user(django_settings, serial):
     response = Response()
     latency_ms = 150
 
-    fields = get_fields_to_log(request, response, latency_ms)  # ty:ignore[invalid-argument-type]
+    fields = get_fields_to_log(request, response, latency_ms)
 
     assert fields == {"latency_ms": 150, "method": "GET", "status": 200, "referrer": '', 'request_user_id': 42}
 

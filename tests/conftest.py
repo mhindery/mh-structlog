@@ -25,7 +25,7 @@ def serial(lock):
 
 @pytest.fixture(scope='session')
 def django_settings():
-    settings.configure(SECRET_KEY='1234', ROOT_URLCONF='tests.root_urlconf')  # noqa: S106
+    settings.configure(SECRET_KEY='1234', ROOT_URLCONF='tests.root_urlconf')  # ruff: ignore[hardcoded-password-func-arg]
     setup_test_environment(debug=True)
 
 
