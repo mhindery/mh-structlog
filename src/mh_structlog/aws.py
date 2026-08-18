@@ -9,7 +9,7 @@ is_cold_start = True
 
 def _reset_cold_start_flag() -> None:
     """Reset the cold start flag to True. This is primarily intended for testing purposes."""
-    global is_cold_start  # noqa: PLW0603
+    global is_cold_start  # ruff: ignore[global-statement]
     is_cold_start = True
 
 
@@ -19,7 +19,7 @@ def bind_lambda_context(lambda_context: LambdaContext | None = None) -> None:
     Args:
         lambda_context (LambdaContext | None): The AWS Lambda context object.
     """
-    global is_cold_start  # noqa: PLW0603
+    global is_cold_start  # ruff: ignore[global-statement]
 
     if lambda_context and getattr(lambda_context, 'function_name', None):
         structlog.contextvars.clear_contextvars()
