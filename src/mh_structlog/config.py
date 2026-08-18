@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import logging  # noqa: I001
+import logging  # ruff: ignore[noqa-comments]
 import logging.config
 import os
 import sys
@@ -25,27 +25,27 @@ class StructlogLoggingConfigExceptionError(Exception):
     """Exception to raise if the config is not correct."""
 
 
-def setup(  # noqa: PLR0912, PLR0915, C901
+def setup(  # ruff: ignore[too-many-branches, too-many-statements, complex-structure]
     log_format: Literal["console", "json", "gcp_json", "aws_json"] | None = None,
     logging_configs: list[dict] | None = None,
-    include_source_location: bool = False,  # noqa: FBT001, FBT002
+    include_source_location: bool = False,
     global_filter_level: int | None = None,
     log_file: str | Path | None = None,
     log_file_format: Literal["console", "json"] | None = None,
-    testing_mode: bool = False,  # noqa: FBT001, FBT002
+    testing_mode: bool = False,
     max_frames: int = 100,
     sentry_config: dict | None = None,
-    additional_processors: list | None = None,  # noqa: FBT001, FBT002
+    additional_processors: list | None = None,
     timestamp_ms_precision: bool | None = True,
     dump_objects_as_dict: bool | None = True,
 ) -> None:
     """This method configures structlog and the standard library logging module."""
-    global SELECTED_LOG_FORMAT  # noqa: PLW0603
+    global SELECTED_LOG_FORMAT  # ruff: ignore[global-statement]
 
     # Unless we are in testing mode, don't configure logging if it was already configured.
     # During testing, we need te flexibility to configure logging multiple times.
     if structlog.is_configured() and not testing_mode:
-        from logging import getLogger  # noqa: PLC0415
+        from logging import getLogger  # ruff: ignore[import-outside-top-level]
 
         getLogger('mh_structlog').warning('logging was already configured, so I return and do nothing.')
         return
@@ -96,7 +96,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
 
     if sentry_config and sentry_config.get('active', True):
         try:
-            from . import sentry  # noqa: PLC0415
+            from . import sentry  # ruff: ignore[import-outside-top-level]
         except ImportError as e:
             raise StructlogLoggingConfigExceptionError(
                 "sentry_config was provided, but mh_structlog.sentry could not be imported. "
@@ -132,7 +132,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
 
     env_log_level_constant = None
     if env_log_level_str := os.environ.get('LOG_LEVEL', '').upper():
-        env_log_level_constant = logging._nameToLevel.get(env_log_level_str)  # noqa: SLF001
+        env_log_level_constant = logging._nameToLevel.get(env_log_level_str)  # ruff: ignore[private-member-access]
 
         if not env_log_level_constant:
             raise StructlogLoggingConfigExceptionError(
@@ -152,7 +152,7 @@ def setup(  # noqa: PLR0912, PLR0915, C901
         global_filter_level = env_log_level_constant
 
     if global_filter_level is not None:
-        if global_filter_level not in logging._nameToLevel.values():  # noqa: SLF001
+        if global_filter_level not in logging._nameToLevel.values():  # ruff: ignore[private-member-access]
             raise StructlogLoggingConfigExceptionError(
                 f"global_filter_level has unrecognized value: {global_filter_level}"
             )

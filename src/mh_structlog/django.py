@@ -6,7 +6,7 @@ from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseRedirectBase
 from django.utils.decorators import sync_and_async_middleware
 
-from mh_structlog import config  # noqa: PLC0415
+from mh_structlog import config  # ruff: ignore[noqa-comments]
 
 
 logger = structlog.getLogger("mh_structlog.django.access")

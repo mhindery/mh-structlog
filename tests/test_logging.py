@@ -45,12 +45,12 @@ def test_setup_twice():
 def test_setup_invalid_params():
     reset_defaults()
     clear_contextvars()
-    with pytest.raises(Exception, match="max_frames should be a positive integer."):  # noqa: RUF043
+    with pytest.raises(Exception, match="max_frames should be a positive integer."):  # ruff: ignore[pytest-raises-ambiguous-pattern]
         setup(max_frames=-1)
 
     reset_defaults()
     clear_contextvars()
-    with pytest.raises(Exception, match="Unknown logging format requested."):  # noqa: RUF043
+    with pytest.raises(Exception, match="Unknown logging format requested."):  # ruff: ignore[pytest-raises-ambiguous-pattern]
         setup(log_format='invalid_format')  # ty:ignore[invalid-argument-type]
 
 

@@ -142,37 +142,37 @@ select = [
 ]
 
 ignore = [
-    "ANN002",  # Missing type annotations for *args
-    "ANN003",  # Missing type annotations for **kwargs
-    "ANN204",  # Missing return type annotation for special method `__init__`
-    "ANN401",  # Disallow Any type hints
-    "COM812",  # Trailing comma missing. The ruff format always removes this on e.g. a list of function arguments.
-    "D100",    # Missing docstring in public module
-    "D105",    # Missing docstring in magic method
-    "D106",    # Missing docstring in public nested class
-    "D202",    # No blank line after function docstring
-    "E501",    # Line too long
-    "EM101",   # Exception must not use a string literal, assign to variable first
-    "EM102",   # Exception must not use an f-string literal, assign to variable first
-    "ISC001",  # Conflicting with formatter
-    "PD011",   # pandas-use-of-dot-values. Ignored because it gives a lot of false positives every time .values is used on something.
-    "Q000",    # Single quotes found but double quotes preferred
-    "RUF012",  # mutable-class-default. Class attributes would required type annotations everywhere if enabled.
-    "TRY002",  # Create your own exception
-    "TRY003",  # Avoid specifying long messages outside the exception class
-    "PGH003",  # Require specific codes when silencing linting.
-    "FBT001",  # Boolean arguments in function calls
-    "FBT002",  # Boolean arguments in function calls
-    "RUF100",  # Report unused noqa directives. This clashes with the leniency from the ignore above this one.
-    "DOC501",  # Raised exception {id} missing from docstring
-    "PLR6301", # Not using self in a method
-    "DOC201",  # Not mentioning 'return' explicitly in a docstring
-    "A005",    # Module name is shadowing a python builtin module
+    "missing-type-args",  # Missing type annotations for *args
+    "missing-type-kwargs",  # Missing type annotations for **kwargs
+    "missing-return-type-special-method",  # Missing return type annotation for special method `__init__`
+    "any-type",  # Disallow Any type hints
+    "missing-trailing-comma",  # Trailing comma missing. The ruff format always removes this on e.g. a list of function arguments.
+    "undocumented-public-module",    # Missing docstring in public module
+    "undocumented-magic-method",    # Missing docstring in magic method
+    "undocumented-public-nested-class",    # Missing docstring in public nested class
+    "blank-line-after-function",    # No blank line after function docstring
+    "line-too-long",    # Line too long
+    "raw-string-in-exception",   # Exception must not use a string literal, assign to variable first
+    "f-string-in-exception",   # Exception must not use an f-string literal, assign to variable first
+    "single-line-implicit-string-concatenation",  # Conflicting with formatter
+    "pandas-use-of-dot-values",   # pandas-use-of-dot-values. Ignored because it gives a lot of false positives every time .values is used on something.
+    "bad-quotes-inline-string",    # Single quotes found but double quotes preferred
+    "mutable-class-default",  # mutable-class-default. Class attributes would required type annotations everywhere if enabled.
+    "raise-vanilla-class",  # Create your own exception
+    "raise-vanilla-args",  # Avoid specifying long messages outside the exception class
+    "blanket-type-ignore",  # Require specific codes when silencing linting.
+    "boolean-type-hint-positional-argument",  # Boolean arguments in function calls
+    "boolean-default-value-positional-argument",  # Boolean arguments in function calls
+    "unused-noqa",  # Report unused noqa directives. This clashes with the leniency from the ignore above this one.
+    "docstring-missing-exception",  # Raised exception {id} missing from docstring
+    "no-self-use", # Not using self in a method
+    "docstring-missing-returns",  # Not mentioning 'return' explicitly in a docstring
+    "stdlib-module-shadowing",    # Module name is shadowing a python builtin module
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
-unfixable = ["T201"]
+unfixable = ["print"]
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -192,44 +192,44 @@ skip-magic-trailing-comma = true
 
 # 4. Ignore `E402` (import violations) in all `__init__.py` files, and in select subdirectories.
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "D104", "F403"]
+"__init__.py" = ["module-import-not-at-top-of-file", "undocumented-public-package", "undefined-local-with-import-star"]
 "**/{tests,docs,tools}/*" = [
-    "ANN201",
-    "ARG001",
-    "ARG002",
-    "D101",
-    "D102",
-    "D103",
-    "DOC402",
-    "DJ008",
-    "E402",
-    "PLC2701",
-    "PLR0914",
-    "PLR0915",
-    "PLR2004",
-    "S101",
-    "S105",
-    "S311",
-    "SLF001",
+    "missing-return-type-undocumented-public-function",
+    "unused-function-argument",
+    "unused-method-argument",
+    "undocumented-public-class",
+    "undocumented-public-method",
+    "undocumented-public-function",
+    "docstring-missing-yields",
+    "django-model-without-dunder-str",
+    "module-import-not-at-top-of-file",
+    "import-private-name",
+    "too-many-locals",
+    "too-many-statements",
+    "magic-value-comparison",
+    "assert",
+    "hardcoded-password-string",
+    "suspicious-non-cryptographic-random-usage",
+    "private-member-access",
 ]
 "test*.py" = [
-    "ANN201",
-    "ARG001",
-    "ARG002",
-    "D101",
-    "D102",
-    "D103",
-    "DOC402",
-    "DJ008",
-    "E402",
-    "PLC2701",
-    "PLR0914",
-    "PLR0915",
-    "PLR2004",
-    "S101",
-    "S105",
-    "S311",
-    "SLF001",
+    "missing-return-type-undocumented-public-function",
+    "unused-function-argument",
+    "unused-method-argument",
+    "undocumented-public-class",
+    "undocumented-public-method",
+    "undocumented-public-function",
+    "docstring-missing-yields",
+    "django-model-without-dunder-str",
+    "module-import-not-at-top-of-file",
+    "import-private-name",
+    "too-many-locals",
+    "too-many-statements",
+    "magic-value-comparison",
+    "assert",
+    "hardcoded-password-string",
+    "suspicious-non-cryptographic-random-usage",
+    "private-member-access",
 ]
 
 [tool.ruff.lint.pylint]

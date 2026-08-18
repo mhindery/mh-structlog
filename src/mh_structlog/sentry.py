@@ -5,7 +5,7 @@ from structlog_sentry import SentryProcessor as _SentryProcessor
 class SentryProcessor(_SentryProcessor):
     """The SentryProcessor but with some of our own defaults and slight customization applied."""
 
-    def __init__(self, **kwargs):  # noqa: D107
+    def __init__(self, **kwargs):  # ruff: ignore[noqa-comments]
         # Unless otherwise specified, add all extra attributes from the log to Sentry as tags.
         # Explicitly pass tag_keys=None to avoid this behaviour.
         if 'tag_keys' not in kwargs:
@@ -19,7 +19,7 @@ class SentryProcessor(_SentryProcessor):
 
         if 'tags' in event:
             for k in list(event['tags'].keys()):
-                if not isinstance(event['tags'][k], (bool, str, int, float, type(None))):  # noqa: UP038
+                if not isinstance(event['tags'][k], (bool, str, int, float, type(None))):  # ruff: ignore[noqa-comments]
                     del event['tags'][k]
 
         return event, hint

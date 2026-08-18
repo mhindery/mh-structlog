@@ -16,13 +16,13 @@ except ImportError:
 try:
     from django.utils.functional import SimpleLazyObject, empty  # ty:ignore[unresolved-import]
 except ImportError:
-    SimpleLazyObject = None  # ty:ignore[invalid-assignment]
+    SimpleLazyObject = None
 
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
 
 
-def add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
+def add_flattened_extra(_, __, event_dict: dict) -> dict:  # ruff: ignore[missing-type-function-argument]
     """Include the content of 'extra' in the output log, flattened the attributes."""
     if event_dict.get("_from_structlog"):
         # Coming from structlog logging call
@@ -37,7 +37,7 @@ def add_flattened_extra(_, __, event_dict: dict) -> dict:  # noqa: ANN001
     return event_dict
 
 
-def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, name: str, event_dict: dict) -> dict:  # noqa: ARG001
+def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, name: str, event_dict: dict) -> dict:  # ruff: ignore[unused-function-argument]
     """Add the source of the log as a single attribute."""
     pathname = event_dict.pop(CallsiteParameter.PATHNAME.value, None)
     lineno = event_dict.pop(CallsiteParameter.LINENO.value, None)
@@ -46,7 +46,7 @@ def _merge_pathname_lineno_function_to_location(logger: structlog.BoundLogger, n
     return event_dict
 
 
-def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # noqa: ARG001
+def render_orjson(logger: structlog.BoundLogger, name: str, event_dict: dict) -> str:  # ruff: ignore[unused-function-argument]
     """Render the event_dict as a json string using orjson."""
     return orjson.dumps(event_dict, default=repr).decode()
 
@@ -58,10 +58,10 @@ class FieldsAdder:
     instead of having to configure them on every logger.
     """
 
-    def __init__(self, data: dict):  # noqa: D107
+    def __init__(self, data: dict):  # ruff: ignore[noqa-comments]
         self.data = data
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         event_dict.update(self.data)
         return event_dict
 
@@ -69,10 +69,10 @@ class FieldsAdder:
 class FieldDropper:
     """Drop fields from the event dict if present."""
 
-    def __init__(self, fields: list):  # noqa: D107
+    def __init__(self, fields: list):  # ruff: ignore[noqa-comments]
         self.fields = fields
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         for field in self.fields:
             event_dict.pop(field, None)
         return event_dict
@@ -81,12 +81,12 @@ class FieldDropper:
 class FieldRenamer:
     """Rename fields in the event dict."""
 
-    def __init__(self, enable: bool, name_from: str, name_to: str):  # noqa: D107
+    def __init__(self, enable: bool, name_from: str, name_to: str):  # ruff: ignore[noqa-comments]
         self.enable = enable
         self.name_from = name_from
         self.name_to = name_to
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         if self.enable and self.name_from in event_dict:
             event_dict[self.name_to] = event_dict.pop(self.name_from)
 
@@ -96,10 +96,10 @@ class FieldRenamer:
 class ObjectToDictTransformer:
     """Support dumping some specific objects as dicts, so they are better serialized as dicts instead of using their default string representation."""
 
-    def __init__(self, *args, **kwargs):  # noqa: D107
+    def __init__(self, *args, **kwargs):  # ruff: ignore[noqa-comments]
         pass
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         for key, value in list(event_dict.items()):
             if SimpleLazyObject is not None and isinstance(value, SimpleLazyObject):
                 # In case we have a wrapper but it is already evaluated, we want to use the wrapped value instead of the wrapper.
@@ -118,12 +118,12 @@ class ObjectToDictTransformer:
 class FieldTransformer:
     """Transform a field in the event dict using a provided function."""
 
-    def __init__(self, enable: bool, field_name: str, transform_function: Callable):  # noqa: D107
+    def __init__(self, enable: bool, field_name: str, transform_function: Callable):  # ruff: ignore[noqa-comments]
         self.enable = enable
         self.field_name = field_name
         self.transform_function = transform_function
 
-    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # noqa: D102,ARG001,ARG002
+    def __call__(self, logger: logging.Logger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         if self.enable and self.field_name in event_dict:
             event_dict[self.field_name] = self.transform_function(event_dict[self.field_name])
         return event_dict
@@ -139,13 +139,13 @@ class CapExceptionFrames:
         """Set the max number of frames to keep in exception tracebacks."""
         self.max_frames = max_frames
 
-    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # noqa: ARG002, D102
+    def __call__(self, logger: structlog.BoundLogger, name: str, event_dict: EventDict) -> EventDict:  # ruff: ignore[unused-method-argument]
         if self.max_frames is not None and 'exception' in event_dict and 'frames' in event_dict["exception"]:
             event_dict['exception']['frames'] = event_dict['exception']['frames'][-self.max_frames :]
         return event_dict
 
 
-def cap_timestamp_to_ms_precision(_, __, event_dict: dict) -> dict:  # noqa: ANN001
+def cap_timestamp_to_ms_precision(_, __, event_dict: dict) -> dict:  # ruff: ignore[missing-type-function-argument]
     """Cap the timestamp to millisecond precision, dropping the microseconds part."""
     if ts := event_dict.get("timestamp"):
         event_dict['timestamp'] = ts[:-4] + 'Z'

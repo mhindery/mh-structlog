@@ -24,13 +24,13 @@ def determine_name_for_logger():
     return name.strip('.')
 
 
-def getLogger(name: str | None = None):  # noqa: ANN201, N802
+def getLogger(name: str | None = None):  # ruff: ignore[missing-return-type-undocumented-public-function, invalid-function-name]
     """Return a named logger."""
     if name is None:
         name = determine_name_for_logger()
     return structlog.get_logger(name)
 
 
-def get_logger(name: str | None = None):  # noqa: ANN201
+def get_logger(name: str | None = None):  # ruff: ignore[missing-return-type-undocumented-public-function]
     """Return a named logger."""
     return getLogger(name)
