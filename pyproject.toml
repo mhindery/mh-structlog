@@ -39,23 +39,22 @@ version_file = "src/mh_structlog/_version.py"
 dev = [
     "ipdb>=0.13.13",
     "ipython>=8.38.0",
-    "ruff>=0.15.21",
-    "ty>=0.0.21",
+    "ruff>=0.16.3",
+    "ty>=0.0.72",
 ]
 tests = [
     "coverage>=7.13.4",
     "django>=5",
     "filelock>=3.25.0",
     "freezegun>=1.5.5",
-    "django>=5",
     "pydantic>=2.12.5",
-    "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-django>=4.11.1",
     "pytest-env>=1.2.0",
     "pytest-randomly>=4.0.1",
     "pytest-sugar>=1.1.1",
     "pytest-xdist>=3.6.1",
+    "pytest>=9.0.2",
 ]
 
 [tool.uv]
