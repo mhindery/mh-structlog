@@ -16,7 +16,7 @@ except ImportError:
 try:
     from django.utils.functional import SimpleLazyObject, empty
 except ImportError:
-    SimpleLazyObject = None  # ty: ignore[invalid-assignment]
+    SimpleLazyObject = None
 
 # Inspect a default logging library record so we can find out which keys on a LogRecord are 'extra' and not default ones.
 _LOG_RECORD_KEYS = set(logging.LogRecord("name", 0, "pathname", 0, "msg", (), None).__dict__.keys())
